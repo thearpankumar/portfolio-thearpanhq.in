@@ -1,0 +1,310 @@
+.career-heading {
+  display: flex;
+  justify-content: center;
+  padding-top: 120px;
+}
+.career-heading h2 {
+  font-size: 70px;
+  line-height: 70px;
+  font-weight: 400;
+  text-align: center;
+  background: linear-gradient(0deg, #e11d2e, #ffffff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  margin-top: 50px;
+  margin-bottom: 200px;
+}
+.career-heading h2 > span {
+  font-family: "Geist", sans-serif;
+  font-weight: 300;
+}
+
+/* Wheel timeline (ported from XenKrypt about page) */
+.career-section {
+  --cw-accent: #ff4d4d;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  margin-bottom: 150px;
+}
+.cw-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+  font-family: "Geist", sans-serif;
+  color: #fff;
+}
+
+/* Origin point: everything positions relative to the wheel centre */
+.cw-origin {
+  position: absolute;
+  z-index: 10;
+}
+.cw-lg .cw-origin {
+  left: clamp(5rem, 6vw, 10rem);
+  top: 55%;
+}
+.cw-md .cw-origin,
+.cw-sm .cw-origin {
+  left: 50%;
+  top: clamp(6rem, 10vh, 12rem);
+  transform: rotate(90deg);
+}
+
+.cw-system {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  width: clamp(800px, 90vw, 1500px);
+  aspect-ratio: 1272 / 1314;
+}
+.cw-planet {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  transform-origin: center;
+  transition: transform 1s ease-out;
+}
+.cw-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.cw-line {
+  opacity: 0.7;
+  filter: drop-shadow(0 0 8px rgba(255, 77, 77, 0.5));
+}
+
+.cw-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.7s ease-out;
+}
+.cw-dot-arm {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cw-dot-pos {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 42.025%);
+  transform: translate(-50%, -50%);
+}
+.cw-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #52525b;
+  transition: all 0.5s;
+}
+.cw-dot.active {
+  width: 12px;
+  height: 12px;
+  background: var(--cw-accent);
+  box-shadow: 0 0 12px rgba(255, 77, 77, 0.6);
+}
+
+.cw-logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(255, 77, 77, 0.05);
+  box-shadow: 0 0 40px rgba(255, 77, 77, 0.08);
+  transform: translate(-50%, -50%);
+}
+.cw-logo img {
+  height: 72px;
+  width: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+}
+.cw-md .cw-logo,
+.cw-sm .cw-logo {
+  transform: translate(16px, -50%) rotate(90deg);
+}
+
+.cw-years {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  transition: transform 0.7s ease-out;
+}
+.cw-year-item {
+  --cw-orbit-radius: clamp(180px, 16vw, 360px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transform-origin: center;
+  transition: all 0.5s;
+}
+.cw-md .cw-year-item,
+.cw-sm .cw-year-item {
+  --cw-orbit-radius: clamp(180px, 25vw, 400px);
+}
+.cw-year-item span {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.2em;
+  color: #52525b;
+  user-select: none;
+  transition: all 0.5s;
+}
+.cw-md .cw-year-item span,
+.cw-sm .cw-year-item span {
+  font-size: 14px;
+}
+.cw-year-item span.active {
+  color: #fff;
+}
+
+.cw-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.cw-particle {
+  position: absolute;
+  border-radius: 50%;
+}
+.cw-md .cw-particles,
+.cw-sm .cw-particles {
+  opacity: 0.35;
+}
+
+/* Desktop: text ring to the right of the wheel */
+.cw-text-ring {
+  position: absolute;
+  top: 0;
+  left: 1vw;
+  z-index: 10;
+  transition: transform 0.7s ease-out;
+}
+.cw-text-arm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.cw-text {
+  width: clamp(300px, 40vw, 700px);
+  padding-left: 32px;
+  opacity: 0;
+  transition: all 0.5s;
+}
+.cw-text.active {
+  opacity: 1;
+}
+.cw-text h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  color: #a1a1aa;
+}
+.cw-text p {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+/* Tablet / mobile: text pinned to the bottom */
+.cw-text-bottom {
+  position: absolute;
+  bottom: 15vh;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 0 24px;
+}
+.cw-text-stack {
+  position: relative;
+  min-height: 100px;
+}
+.cw-text-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s;
+}
+.cw-text-item.active {
+  position: relative;
+  opacity: 1;
+  pointer-events: auto;
+}
+.cw-text-item h3 {
+  margin: 0 0 64px;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  color: #a1a1aa;
+}
+.cw-text-item p {
+  margin: 0 auto 96px;
+  max-width: 90vw;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+.cw-sm .cw-text-item h3 {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.cw-sm .cw-text-item p {
+  margin-bottom: 0;
+  font-size: 20px;
+}
+
+@media only screen and (max-width: 1025px) {
+  .career-heading h2 {
+    font-size: 50px;
+    line-height: 50px;
+  }
+}
+@media only screen and (max-width: 600px) {
+  .career-heading {
+    padding-top: 60px;
+  }
+  .career-heading h2 {
+    font-size: 36px;
+    line-height: 36px;
+    margin-bottom: 120px;
+  }
+}

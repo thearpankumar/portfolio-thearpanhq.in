@@ -1,0 +1,62 @@
+/* Ported from references/elfekky-portfolio (.Horizontal): Inter, lowercase,
+   tight tracking, full-screen pinned line. */
+.statement {
+  position: relative;
+  width: 100%;
+  height: auto; /* the pin spacer supplies the scroll distance */
+  z-index: 1;
+}
+
+.statement .hs-sticky {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.statement-text {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  gap: 4vw;
+  padding-left: 100vw; /* starts fully off-screen to the right */
+  margin: 0;
+  pointer-events: none;
+  font-family: "Inter", "Geist", sans-serif;
+  font-size: clamp(2rem, 10vw, 9rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.07em;
+  text-transform: lowercase;
+  color: var(--textColor, #eae5ec);
+}
+
+.statement .hs-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.statement .hs-char {
+  display: inline-block;
+  will-change: transform;
+}
+
+@media (max-width: 1024px) {
+  .statement-text {
+    font-size: clamp(2.2rem, 12vw, 5rem);
+    line-height: 1.05;
+  }
+}
+
+@media (max-width: 600px) {
+  .statement .hs-sticky {
+    height: 70vh;
+    min-height: 360px;
+  }
+  .statement-text {
+    font-size: clamp(2rem, 15vw, 4.5rem);
+  }
+}

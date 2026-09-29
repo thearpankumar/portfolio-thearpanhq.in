@@ -1,0 +1,17 @@
+.shader-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 100; /* above page content, below the fixed header (9999) */
+  pointer-events: none;
+  visibility: hidden;
+}
+.shader-transition canvas {
+  pointer-events: none;
+}
+
+/* Zero-height marker at a section seam; the transition is scrubbed against it */
+.shader-seam {
+  height: 0;
+  width: 100%;
+  pointer-events: none;
+}

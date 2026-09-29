@@ -1,0 +1,9 @@
+.star-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0; /* above the page background, below the content (.main-body is z-index 1) */
+  pointer-events: none;
+}
+.star-field canvas {
+  pointer-events: none;
+}
