@@ -68,18 +68,9 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - name: Check Vercel credentials
-        run: |
-          missing=0
-          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
-            if [ -z "${!name}" ]; then
-              echo "::error title=Missing secret::$name is not set. Add it under Settings -> Secrets and variables -> Actions (see the comment above the deploy jobs)."
-              missing=1
-            fi
-          done
-          exit $missing
-
       - uses: actions/checkout@v7
+      - name: Check Vercel credentials
+        run: bash .github/scripts/check-vercel.sh
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -101,18 +92,9 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - name: Check Vercel credentials
-        run: |
-          missing=0
-          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
-            if [ -z "${!name}" ]; then
-              echo "::error title=Missing secret::$name is not set. Add it under Settings -> Secrets and variables -> Actions (see the comment above the deploy jobs)."
-              missing=1
-            fi
-          done
-          exit $missing
-
       - uses: actions/checkout@v7
+      - name: Check Vercel credentials
+        run: bash .github/scripts/check-vercel.sh
       - uses: actions/setup-node@v7
         with:
           node-version: 22
