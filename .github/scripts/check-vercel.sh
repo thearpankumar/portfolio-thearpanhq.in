@@ -13,29 +13,28 @@ for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
 done
 [ "$missing" -eq 0 ] || exit 1
 
-# Ask the API for the project with the same token the deploy steps will use
-code=$(curl -s -o /dev/null -w '%{http_code}' \
-  -H "Authorization: Bearer $VERCEL_TOKEN" \
-  "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID")
+# Call the same endpoints `vercel pull` uses, with the same token, and report each
+# result. A token can pass one and be refused on another.
+api() { # $1 = label, $2 = path
+  local code
+  code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $VERCEL_TOKEN" "https://api.vercel.com$2")
+  echo "  $1: HTTP $code"
+  echo "$code" > "/tmp/vercel-check-$1"
+}
 
-case "$code" in
-  200)
-    echo "Vercel token can access the project."
-    ;;
-  401)
-    echo "::error title=Vercel token invalid::HTTP 401. VERCEL_TOKEN is wrong or expired. Create a new one at vercel.com/account/tokens and update the secret."
-    exit 1
-    ;;
-  403)
-    echo "::error title=Vercel token has no access::HTTP 403. Either VERCEL_TOKEN is invalid or expired, or it cannot see this team's project. The usual cause: it was created with Scope = 'Personal Account'. Recreate it at vercel.com/account/tokens with Scope set to the team that owns the project, then update the VERCEL_TOKEN secret."
-    exit 1
-    ;;
-  404)
-    echo "::error title=Vercel project not found::HTTP 404. Check that VERCEL_PROJECT_ID and VERCEL_ORG_ID match .vercel/project.json (npx vercel link) and that the token's scope includes that team."
-    exit 1
-    ;;
-  *)
-    echo "::error title=Vercel API check failed::Unexpected HTTP $code from api.vercel.com."
-    exit 1
-    ;;
-esac
+echo "Checking Vercel access for team $VERCEL_ORG_ID / project $VERCEL_PROJECT_ID"
+api team "/teams/$VERCEL_ORG_ID?teamId=$VERCEL_ORG_ID"
+api project "/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID"
+api env-pull "/v3/env/pull/$VERCEL_PROJECT_ID/production?source=vercel-cli%3Apull&teamId=$VERCEL_ORG_ID"
+api env-list "/v10/projects/$VERCEL_PROJECT_ID/env?target=production&source=vercel-cli%3Apull&teamId=$VERCEL_ORG_ID"
+
+failed=0
+for label in team project env-pull env-list; do
+  code=$(cat "/tmp/vercel-check-$label")
+  if [ "$code" != "200" ]; then
+    echo "::error title=Vercel access check failed ($label)::GET for '$label' returned HTTP $code. 401 = invalid or expired VERCEL_TOKEN; 403 = the token cannot access this team or project (recreate it with Scope = the team); 404 = VERCEL_ORG_ID / VERCEL_PROJECT_ID do not match .vercel/project.json."
+    failed=1
+  fi
+done
+[ "$failed" -eq 0 ] && echo "Vercel token can reach the team, project and environment variables."
+exit "$failed"
