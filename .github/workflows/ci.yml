@@ -16,19 +16,15 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
 jobs:
   ci:
     name: Lint & Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -43,9 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -53,24 +49,45 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=moderate
 
-  # Vercel's own Git integration is disabled (vercel.json), so this is the
-  # only path to a deployment, and it only runs once `ci` has passed.
+  # Vercel's own Git integration is disabled (vercel.json), so these jobs are the
+  # only path to a deployment, and they only run once `ci` and `audit` have passed.
+  #
+  # One-time setup (repo Settings -> Secrets and variables -> Actions):
+  #   VERCEL_TOKEN       vercel.com/account/tokens
+  #   VERCEL_ORG_ID      "orgId" in .vercel/project.json after `npx vercel link`
+  #   VERCEL_PROJECT_ID  "projectId" in the same file
+  # The Vercel CLI reads all three from the environment, so no --token flags.
   deploy-preview:
     name: Deploy Preview
     needs: [ci, audit]
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check Vercel credentials
+        run: |
+          missing=0
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing secret::$name is not set. Add it under Settings -> Secrets and variables -> Actions (see the comment above the deploy jobs)."
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - run: npm i -g vercel@latest
-      - run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel pull --yes --environment=preview
+      - run: vercel build
+      - run: vercel deploy --prebuilt
 
   deploy-production:
     name: Deploy Production
@@ -79,13 +96,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check Vercel credentials
+        run: |
+          missing=0
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing secret::$name is not set. Add it under Settings -> Secrets and variables -> Actions (see the comment above the deploy jobs)."
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - run: npm i -g vercel@latest
-      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel pull --yes --environment=production
+      - run: vercel build --prod
+      - run: vercel deploy --prebuilt --prod

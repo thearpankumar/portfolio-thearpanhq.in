@@ -87,7 +87,6 @@ type SphereProps = {
 //  - damping: Rapier decays velocity at rate k per second, cannon-es multiplies by
 //    (1 - d)^dt, so d = 1 - e^(-k)
 const LINEAR_DAMPING = 1 - Math.exp(-0.75);
-const ANGULAR_DAMPING = 1 - Math.exp(-0.15);
 const ballMass = (radius: number) => (4 / 3) * Math.PI * radius ** 3;
 
 function SphereGeo({
@@ -102,18 +101,26 @@ function SphereGeo({
     args: [scale],
     mass: ballMass(scale),
     linearDamping: LINEAR_DAMPING,
-    angularDamping: ANGULAR_DAMPING,
     position: [r(20), r(20) - 25, r(20) - 10],
-    rotation: [0.3, 1, 1],
+    // The balls never spin, so the icon (which the sphere's UVs put on its +z
+    // side, towards the camera) always faces the viewer.
+    fixedRotation: true,
   }));
+
+  // cannon drives the mesh through its matrix, so `mesh.position` never changes;
+  // the body's real position comes from a subscription to the worker
+  const position = useRef(new THREE.Vector3());
+  useEffect(
+    () => api.position.subscribe(([x, y, z]) => position.current.set(x, y, z)),
+    [api]
+  );
 
   // pulled towards the middle of the section
   useFrame((_state, delta) => {
-    if (ref.current && Math.random() < 0.004) console.log("DBG sphere", scale.toFixed(1), ref.current.position.toArray().map((n) => n.toFixed(1)).join(","), "active", isActive);
     if (!isActive || !ref.current) return;
     delta = Math.min(0.1, delta);
     vec
-      .copy(ref.current.position)
+      .copy(position.current)
       .normalize()
       .multiply(
         new THREE.Vector3(

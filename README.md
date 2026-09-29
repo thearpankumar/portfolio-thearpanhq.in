@@ -31,7 +31,7 @@ A scroll-driven 3D portfolio: a character that follows you down the page, a star
 - **3D character** (Three.js) that reacts to the cursor and changes pose as you scroll.
 - **Smooth, pinned scrolling** with GSAP ScrollTrigger and ScrollSmoother: About and What I Do hold still while they are read, a wheel-style career timeline, a horizontal Work gallery and a statement that slides across the screen.
 - **Shader transitions** (GLSL) between the career, work and tech-stack sections.
-- **Physics tech stack**: 50 icon-covered spheres you can push around (react-three-fiber + Rapier).
+- **Physics tech stack**: 50 icon-covered spheres you can push around (react-three-fiber + cannon-es, running in a Web Worker).
 - **Always-on starfield** rendered on its own canvas, independent of everything else.
 - **Footer** with a looping black-hole video; the side social icons glide into it and settle in a row.
 - **Handwritten preloader** ("Bonjour, mon ami !") drawn stroke by stroke on an OffscreenCanvas in a Web Worker, so it stays smooth while the page loads.
@@ -43,7 +43,7 @@ A scroll-driven 3D portfolio: a character that follows you down the page, a star
 | Area | Tools |
 | --- | --- |
 | Framework | React 18, TypeScript, Vite 7 |
-| 3D | Three.js, @react-three/fiber, @react-three/drei, @react-three/rapier, @react-three/postprocessing |
+| 3D | Three.js, @react-three/fiber, @react-three/drei, @react-three/cannon, @react-three/postprocessing |
 | Animation | GSAP (ScrollTrigger, ScrollSmoother, SplitText), CSS `cos()`/`sin()` for the radial menu |
 | Quality | ESLint (typescript-eslint), `tsc`, `npm audit` |
 | CI/CD | GitHub Actions → Vercel CLI |
