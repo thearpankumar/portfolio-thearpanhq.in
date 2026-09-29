@@ -76,7 +76,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm i -g vercel@latest
-      - run: vercel pull --yes --environment=preview --debug
+      - run: vercel pull --yes --environment=preview
       - run: vercel build
       - run: vercel deploy --prebuilt
 
@@ -100,6 +100,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm i -g vercel@latest
-      - run: vercel pull --yes --environment=production --debug
+      - run: vercel pull --yes --environment=production
       - run: vercel build --prod
       - run: vercel deploy --prebuilt --prod
