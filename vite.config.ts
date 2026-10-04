@@ -31,6 +31,20 @@ function seo(): Plugin {
       .join("");
   };
 
+  const careerList = () => {
+    const source = readFileSync("src/data/career.ts", "utf8");
+    return [
+      ...source.matchAll(
+        /year:\s*(\d+),\s*(?:quarter:\s*(\d),\s*)?headline:\s*"([^"]+)",\s*desc:\s*"([^"]+)"/g
+      ),
+    ]
+      .map(([, year, quarter, headline, desc]) => {
+        const when = quarter ? `Q${quarter} ${year}` : year;
+        return `<li>${when}: ${escapeHtml(headline)}. ${escapeHtml(desc)}</li>`;
+      })
+      .join("");
+  };
+
   return {
     name: "seo",
     transformIndexHtml(html, ctx) {
@@ -54,7 +68,9 @@ function seo(): Plugin {
         });
       }
       return {
-        html: html.replace("<!--static-projects-->", projectList()),
+        html: html
+          .replace("<!--static-projects-->", projectList())
+          .replace("<!--static-career-->", careerList()),
         tags,
       };
     },

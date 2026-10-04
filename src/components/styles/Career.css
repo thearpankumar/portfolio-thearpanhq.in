@@ -45,6 +45,14 @@
   position: absolute;
   z-index: 10;
 }
+.cw-origin {
+  --cw-year-r: clamp(180px, 16vw, 360px);
+  --cw-quarter-r: calc(var(--cw-year-r) * 0.55);
+}
+.cw-md .cw-origin,
+.cw-sm .cw-origin {
+  --cw-year-r: clamp(180px, 25vw, 400px);
+}
 .cw-lg .cw-origin {
   left: clamp(5rem, 6vw, 10rem);
   top: 55%;
@@ -72,7 +80,6 @@
   height: 100%;
   opacity: 0.6;
   transform-origin: center;
-  transition: transform 1s ease-out;
 }
 .cw-indicator {
   position: absolute;
@@ -91,7 +98,6 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  transition: transform 0.7s ease-out;
 }
 .cw-dot-arm {
   position: absolute;
@@ -142,7 +148,7 @@
 }
 .cw-md .cw-logo,
 .cw-sm .cw-logo {
-  transform: translate(16px, -50%) rotate(90deg);
+  transform: translate(16px, -50%) rotate(-90deg);
 }
 
 .cw-years {
@@ -150,10 +156,8 @@
   top: 0;
   left: 0;
   z-index: 30;
-  transition: transform 0.7s ease-out;
 }
 .cw-year-item {
-  --cw-orbit-radius: clamp(180px, 16vw, 360px);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -161,11 +165,7 @@
   align-items: center;
   justify-content: flex-end;
   transform-origin: center;
-  transition: all 0.5s;
-}
-.cw-md .cw-year-item,
-.cw-sm .cw-year-item {
-  --cw-orbit-radius: clamp(180px, 25vw, 400px);
+  transition: opacity 0.15s linear;
 }
 .cw-year-item span {
   font-weight: 700;
@@ -173,14 +173,68 @@
   letter-spacing: 0.2em;
   color: #52525b;
   user-select: none;
-  transition: all 0.5s;
+  transition: color 0.3s;
 }
 .cw-md .cw-year-item span,
 .cw-sm .cw-year-item span {
   font-size: 14px;
 }
-.cw-year-item span.active {
+.cw-year-item.active span {
   color: #fff;
+}
+
+/* quarter ring, inside the year ring */
+.cw-quarters {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 30;
+}
+.cw-quarter-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center;
+}
+.cw-quarter-item span {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: #71717a;
+  user-select: none;
+  transition: color 0.3s;
+}
+.cw-md .cw-quarter-item span,
+.cw-sm .cw-quarter-item span {
+  font-size: 12px;
+}
+.cw-quarter-item span.active {
+  color: var(--cw-accent);
+  text-shadow: 0 0 12px rgba(255, 77, 77, 0.6);
+}
+
+/* the two rings' orbits, drawn as thin circles round the logo */
+.cw-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.cw-track-years {
+  width: calc(var(--cw-year-r) * 2);
+  height: calc(var(--cw-year-r) * 2);
+}
+.cw-track-quarters {
+  width: calc(var(--cw-quarter-r) * 2);
+  height: calc(var(--cw-quarter-r) * 2);
+  border-color: rgba(255, 77, 77, 0.14);
 }
 
 .cw-particles {
@@ -207,7 +261,6 @@
   top: 0;
   left: 1vw;
   z-index: 10;
-  transition: transform 0.7s ease-out;
 }
 .cw-text-arm {
   position: absolute;
@@ -223,20 +276,49 @@
 .cw-text.active {
   opacity: 1;
 }
+/* the milestone's date, then a bold title in the theme colour, then the detail */
+.cw-period {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.cw-period::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--cw-accent);
+}
+.cw-text h3,
+.cw-text-item h3 {
+  margin: 0 0 14px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--accentColor);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+.cw-text p,
+.cw-text-item p {
+  margin: 0;
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.7);
+}
 .cw-text h3 {
-  margin: 0 0 16px;
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  color: #a1a1aa;
+  font-size: clamp(26px, 2.7vw, 42px);
 }
 .cw-text p {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 300;
-  line-height: 1.4;
-  letter-spacing: -0.025em;
-  color: #fff;
+  max-width: 32em;
+  font-size: clamp(18px, 1.6vw, 25px);
 }
 
 /* Tablet / mobile: text pinned to the bottom */
@@ -267,29 +349,25 @@
   opacity: 1;
   pointer-events: auto;
 }
+.cw-text-item .cw-period {
+  margin-bottom: 14px;
+}
+.cw-text-item .cw-period {
+  justify-content: center;
+}
 .cw-text-item h3 {
-  margin: 0 0 64px;
-  font-size: 24px;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-  color: #a1a1aa;
+  font-size: clamp(24px, 4.4vw, 36px);
 }
 .cw-text-item p {
-  margin: 0 auto 96px;
-  max-width: 90vw;
-  font-size: 30px;
-  font-weight: 300;
-  line-height: 1.4;
-  letter-spacing: -0.025em;
-  color: #fff;
+  margin: 0 auto;
+  max-width: 34em;
+  font-size: clamp(17px, 2.7vw, 23px);
 }
 .cw-sm .cw-text-item h3 {
-  margin-bottom: 12px;
-  font-size: 14px;
+  font-size: 23px;
 }
 .cw-sm .cw-text-item p {
-  margin-bottom: 0;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 @media only screen and (max-width: 1025px) {

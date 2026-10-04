@@ -4,25 +4,27 @@
 
 A scroll-driven 3D portfolio: a character that follows you down the page, a starfield behind everything, pinned sections, a shader transition between them and a black hole in the footer.
 
-**[thearpanhq.in](https://thearpanhq.in)**
-
-[![CI & Deploy](https://github.com/thearpankumar/portfolio-thearpanhq.in/actions/workflows/ci.yml/badge.svg)](https://github.com/thearpankumar/portfolio-thearpanhq.in/actions/workflows/ci.yml)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fthearpanhq.in&label=thearpanhq.in&logo=vercel&logoColor=white)](https://thearpanhq.in)
-[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
-![Last commit](https://img.shields.io/github/last-commit/thearpankumar/portfolio-thearpanhq.in?color=red)
-![Repo size](https://img.shields.io/github/repo-size/thearpankumar/portfolio-thearpanhq.in?color=red)
-
-![React](https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
-![Three.js](https://img.shields.io/badge/Three.js-r168-000000?logo=threedotjs&logoColor=white)
-![GSAP](https://img.shields.io/badge/GSAP-3.15-88CE02?logo=greensock&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white)
+[![CI & Deploy](https://img.shields.io/github/actions/workflow/status/thearpankumar/portfolio-thearpanhq.in/ci.yml?branch=main&label=CI%20%26%20Deploy&logo=githubactions&logoColor=white&style=flat-square)](https://github.com/thearpankumar/portfolio-thearpanhq.in/actions/workflows/ci.yml)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fthearpanhq.in&label=thearpanhq.in&logo=vercel&logoColor=white&style=flat-square)](https://thearpanhq.in)
+[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/thearpankumar/portfolio-thearpanhq.in?style=flat-square&color=red)](https://github.com/thearpankumar/portfolio-thearpanhq.in/commits/main)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/thearpankumar/portfolio-thearpanhq.in?style=flat-square&color=orange)](https://github.com/thearpankumar/portfolio-thearpanhq.in/graphs/commit-activity)
+![Repo size](https://img.shields.io/github/repo-size/thearpankumar/portfolio-thearpanhq.in?style=flat-square&color=red)
+[![React](https://img.shields.io/github/package-json/dependency-version/thearpankumar/portfolio-thearpanhq.in/react?label=React&logo=react&logoColor=61DAFB&color=20232A&style=flat-square)](https://www.npmjs.com/package/react)
+![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?style=flat-square&logo=typescript&logoColor=white)
+[![Vite](https://img.shields.io/github/package-json/dependency-version/thearpankumar/portfolio-thearpanhq.in/dev/vite?label=Vite&logo=vite&logoColor=white&color=646CFF&style=flat-square)](https://www.npmjs.com/package/vite)
+[![Three.js](https://img.shields.io/github/package-json/dependency-version/thearpankumar/portfolio-thearpanhq.in/three?label=Three.js&logo=threedotjs&logoColor=white&color=000000&style=flat-square)](https://www.npmjs.com/package/three)
+[![R3F](https://img.shields.io/github/package-json/dependency-version/thearpankumar/portfolio-thearpanhq.in/@react-three/fiber?label=R3F&logo=react&logoColor=61DAFB&color=000000&style=flat-square)](https://www.npmjs.com/package/@react-three/fiber)
+[![GSAP](https://img.shields.io/github/package-json/dependency-version/thearpankumar/portfolio-thearpanhq.in/gsap?label=GSAP&logo=greensock&logoColor=white&color=88CE02&style=flat-square)](https://www.npmjs.com/package/gsap)
+![Node](https://img.shields.io/badge/Node-22%2B%20%7C%2024%2B-5FA04E?style=flat-square&logo=nodedotjs&logoColor=white)
+![WebGL](https://img.shields.io/badge/WebGL-2-990000?style=flat-square&logo=webgl&logoColor=white)
+![GLSL](https://img.shields.io/badge/GLSL-shaders-5586A4?style=flat-square&logo=opengl&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
 
 </div>
 
 ---
-## Preview 
+## Preview - **[thearpanhq.in](https://thearpanhq.in)**
 
 ![Preview](docs/preview.gif)
 
@@ -42,15 +44,15 @@ A scroll-driven 3D portfolio: a character that follows you down the page, a star
 
 | Area | Tools |
 | --- | --- |
-| Framework | React 18, TypeScript, Vite 7 |
+| Framework | React 19, TypeScript 7, Vite 8 |
 | 3D | Three.js, @react-three/fiber, @react-three/drei, @react-three/cannon, @react-three/postprocessing |
 | Animation | GSAP (ScrollTrigger, ScrollSmoother, SplitText), CSS `cos()`/`sin()` for the radial menu |
-| Quality | ESLint (typescript-eslint), `tsc`, `npm audit` |
+| Quality | ESLint 10 (typescript-eslint), `tsc`, `npm audit` |
 | CI/CD | GitHub Actions → Vercel CLI |
 
 ## Getting started
 
-Requires **Node 20.19+ or 22.12+** (Vite 7).
+Requires **Node 20.19+ or 22.12+** (Vite 8).
 
 ```bash
 git clone https://github.com/thearpankumar/portfolio-thearpanhq.in.git
@@ -70,6 +72,8 @@ Open the address Vite prints (usually http://localhost:5173).
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Type-check only |
+| `npm run assets:brand` | Regenerate the OG image and icons from `public/images/logo.png` |
+| `npm run assets:model` | Compress (Meshopt) and re-encrypt the character model |
 
 ## License
 

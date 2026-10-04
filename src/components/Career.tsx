@@ -1,42 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SMOOTHER_SPEED } from "./utils/smoother";
 import { SWEEP_LEAD } from "./utils/shaderTransition";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { careerItems, type CareerItem } from "../data/career";
 import "./styles/Career.css";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export type CareerItem = {
-  year: string;
-  headline: string;
-  desc: string;
-};
+const data = careerItems;
+const n = data.length;
 
-// TODO: replace with real career entries
-const careerData: CareerItem[] = [
-  {
-    year: "2022",
-    headline: "Position In Company",
-    desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem.",
-  },
-  {
-    year: "2023",
-    headline: "Position In Company",
-    desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem.",
-  },
-  {
-    year: "2024",
-    headline: "Position In Company",
-    desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem.",
-  },
-  {
-    year: "NOW",
-    headline: "Position In Company",
-    desc: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem.",
-  },
-];
+// the year ring runs from the first to the last milestone year
+const FIRST_YEAR = data[0].year;
+const YEARS = Array.from(
+  { length: data[n - 1].year - FIRST_YEAR + 1 },
+  (_, i) => FIRST_YEAR + i
+);
+// a milestone's place on the timeline, in quarters since Q1 of the first year
+const quarterIndex = (item: CareerItem) =>
+  (item.year - FIRST_YEAR) * 4 + (item.quarter ? item.quarter - 1 : 0);
+const TIMES = data.map(quarterIndex);
+
+const periodLabel = (item: CareerItem) =>
+  item.quarter ? `Q${item.quarter} ${item.year}` : `${item.year}`;
 
 type Variant = "lg" | "md" | "sm";
 
@@ -44,11 +32,14 @@ const getVariant = (): Variant =>
   window.innerWidth >= 1024 ? "lg" : window.innerWidth >= 768 ? "md" : "sm";
 
 // Scroll distance (in % of viewport height) spent on each career entry
-const SCROLL_PER_ITEM = 150;
+const SCROLL_PER_ITEM = 120;
 // Screens of real scrolling to rest on the last entry before the shader sweep
 // into the Work section begins.
 const HOLD_SCREENS = 2;
+// Share of each milestone's scroll spent resting on it before the rings move on
+const DWELL = 0.4;
 const ANGLE_STEP = 30;
+const QUARTER_STEP = 90;
 const DOT_ANGLE_STEP = 15;
 const TEXT_ANGLE_STEP = 20;
 const START_ANGLE = -60;
@@ -64,9 +55,44 @@ const particles = [
   { x: 85, y: 75, size: 4, opacity: 0.5 },
 ];
 
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const smooth = (x: number) => x * x * (3 - 2 * x);
+const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
+
+/**
+ * Scroll position -> the wheel's state. `u` counts milestones (0 .. n - 1).
+ * Each stretch rests on a milestone, then eases to the next, so the rings are
+ * aligned with the pointer at rest and in motion in between:
+ *  - pos      milestone index as a float (drives the dots and the text ring)
+ *  - quarters time in quarters since the first year's Q1; the quarter ring turns
+ *             a quarter at a time, so it spins through the gap between milestones
+ *  - years    the year ring, which only steps on while the quarter ring passes
+ *             from Q4 to the next Q1
+ *  - lit      how much the quarter ring should light its pointed-at quarter
+ *             (0 for a milestone that only has a year)
+ */
+function locate(u: number) {
+  const i = Math.min(Math.floor(u), n - 2);
+  const s = smooth(clamp01((u - i - DWELL) / (1 - DWELL)));
+  const quarters = lerp(TIMES[i], TIMES[i + 1], s);
+  const wholeYears = Math.floor(quarters / 4);
+  return {
+    pos: i + s,
+    quarters,
+    years: wholeYears + smooth(clamp01(quarters - wholeYears * 4 - 3)),
+    lit: lerp(data[i].quarter ? 1 : 0, data[i + 1].quarter ? 1 : 0, s),
+  };
+}
+
 const Career = () => {
-  const data = careerData;
   const sectionRef = useRef<HTMLDivElement>(null);
+  const planetRef = useRef<SVGSVGElement>(null);
+  const dotsRef = useRef<HTMLDivElement>(null);
+  const yearsRef = useRef<HTMLDivElement>(null);
+  const quartersRef = useRef<HTMLDivElement>(null);
+  const textRingRef = useRef<HTMLDivElement>(null);
+  const yearEls = useRef<(HTMLDivElement | null)[]>([]);
+  const quarterEls = useRef<(HTMLSpanElement | null)[]>([]);
   const [variant, setVariant] = useState<Variant>(getVariant);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -76,7 +102,7 @@ const Career = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Pin the wheel and map scroll progress to the active entry.
+  // Pin the wheel and turn its rings straight from the scroll position.
   // useGSAP (layout-effect timing, like Work's pin) so pins are created in
   // document order; the context also reverts the pin spacer on cleanup.
   useGSAP(
@@ -85,9 +111,61 @@ const Career = () => {
       // reached after (n - 1) items, then held before the sweep into Work starts
       const perItem = () => (SCROLL_PER_ITEM / 100) * window.innerHeight;
       const total = () =>
-        (data.length - 1) * perItem() +
+        (n - 1) * perItem() +
         HOLD_SCREENS * window.innerHeight * SMOOTHER_SPEED +
         (SWEEP_LEAD / 100) * window.innerHeight;
+
+      const isLg = variant === "lg";
+      const turn = (el: HTMLElement | SVGElement | null, deg: number) => {
+        if (el) el.style.transform = `rotate(${deg}deg)`;
+      };
+
+      // Everything that moves is written here, on every update, without going
+      // through React: the rings are continuous, so state would re-render the
+      // wheel on every scroll tick. Only the active milestone is state.
+      const update = (progress: number) => {
+        const u = Math.min((progress * total()) / perItem(), n - 1);
+        const { pos, quarters, years, lit } = locate(u);
+
+        turn(planetRef.current, pos * 8);
+        turn(dotsRef.current, -(START_ANGLE + pos * DOT_ANGLE_STEP));
+        turn(yearsRef.current, -(START_ANGLE + years * ANGLE_STEP));
+        turn(quartersRef.current, -quarters * QUARTER_STEP);
+        turn(textRingRef.current, -(START_ANGLE + pos * TEXT_ANGLE_STEP));
+
+        YEARS.forEach((_, i) => {
+          const el = yearEls.current[i];
+          if (!el) return;
+          const distance = Math.abs(i - years);
+          el.classList.toggle("active", distance < 0.5);
+          // md/sm only show the current year and its neighbours
+          el.style.opacity =
+            isLg
+              ? ""
+              : String(
+                  distance <= 1
+                    ? 1 - 0.6 * distance
+                    : Math.max(0, 0.4 * (2 - distance))
+                );
+        });
+
+        for (let k = 0; k < 4; k++) {
+          const el = quarterEls.current[k];
+          if (!el) continue;
+          // distance of quarter k from the pointer, in quarters (0 .. 2)
+          const away = Math.abs((((k - quarters + 2) % 4) + 4) % 4 - 2);
+          const glow = clamp01(1 - away) * lit;
+          el.style.opacity = String(0.35 + 0.65 * glow);
+          el.classList.toggle("active", glow > 0.5);
+          // keep the label upright on screen whatever the ring is doing (md/sm
+          // turn the whole wheel a quarter turn, so undo that too)
+          const upright = (quarters - k) * QUARTER_STEP - (isLg ? 0 : 90);
+          el.style.transform = `rotate(${upright}deg)`;
+        }
+
+        const next = Math.round(pos);
+        setActiveIndex((prev) => (prev !== next ? next : prev));
+      };
 
       ScrollTrigger.create({
         id: "career",
@@ -96,33 +174,17 @@ const Career = () => {
         end: () => `+=${total()}`,
         pin: true,
         invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const next = Math.min(
-            Math.floor((self.progress * total()) / perItem()),
-            data.length - 1
-          );
-          setActiveIndex((prev) => (prev !== next ? next : prev));
-        },
+        onUpdate: (self) => update(self.progress),
+        onRefresh: (self) => update(self.progress),
       });
+      update(0);
     },
     // revertOnUpdate: without it useGSAP only reverts on unmount, so a layout
     // change (crossing 768/1024px) left the old pin in place and stacked a
     // second one on it, which pushed the section off screen while pinned
-    { dependencies: [data.length, variant], revertOnUpdate: true }
+    { dependencies: [variant], revertOnUpdate: true }
   );
 
-  // Group duplicate years so the year ring only shows each once
-  const visualIndices = useMemo(() => {
-    let current = 0;
-    const indices = [0];
-    for (let i = 1; i < data.length; i++) {
-      if (data[i].year !== data[i - 1].year) current++;
-      indices.push(current);
-    }
-    return indices;
-  }, [data]);
-
-  const activeVisualIndex = visualIndices[activeIndex];
   const isLg = variant === "lg";
 
   return (
@@ -138,9 +200,9 @@ const Career = () => {
           <div className="cw-origin">
             <div className="cw-system">
               <svg
+                ref={planetRef}
                 viewBox="0 0 1272 1314"
                 className="cw-planet"
-                style={{ transform: `rotate(${activeIndex * 8}deg)` }}
                 aria-hidden
               >
                 <defs>
@@ -185,12 +247,7 @@ const Career = () => {
                 />
               </svg>
 
-              <div
-                className="cw-dots"
-                style={{
-                  transform: `rotate(${-(START_ANGLE + activeIndex * DOT_ANGLE_STEP)}deg)`,
-                }}
-              >
+              <div className="cw-dots" ref={dotsRef}>
                 {data.map((_, index) => (
                   <div
                     key={index}
@@ -219,42 +276,45 @@ const Career = () => {
               />
             </div>
 
-            <div
-              className="cw-years"
-              style={{
-                transform: `rotate(${-(START_ANGLE + activeVisualIndex * ANGLE_STEP)}deg)`,
-              }}
-            >
-              {data.map((item, index) => {
-                if (index > 0 && data[index].year === data[index - 1].year)
-                  return null;
-                const visualIndex = visualIndices[index];
-                const angle = START_ANGLE + visualIndex * ANGLE_STEP;
-                const isActiveYear = visualIndex === activeVisualIndex;
-                // md/sm only show the active year and its neighbours
-                const distance = Math.abs(visualIndex - activeVisualIndex);
-                const opacity = isLg
-                  ? undefined
-                  : distance <= 1
-                    ? isActiveYear
-                      ? 1
-                      : 0.4
-                    : 0;
-                return (
-                  <div
-                    key={index}
-                    className="cw-year-item"
-                    style={{
-                      transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(var(--cw-orbit-radius))`,
-                      opacity,
+            {/* two rings round the logo: quarters inside, years outside */}
+            <div className="cw-track cw-track-quarters" aria-hidden />
+            <div className="cw-track cw-track-years" aria-hidden />
+
+            <div className="cw-quarters" ref={quartersRef} aria-hidden>
+              {[0, 1, 2, 3].map((k) => (
+                <div
+                  key={k}
+                  className="cw-quarter-item"
+                  style={{
+                    transform: `translate(-50%, -50%) rotate(${k * QUARTER_STEP}deg) translateX(var(--cw-quarter-r))`,
+                  }}
+                >
+                  <span
+                    ref={(el) => {
+                      quarterEls.current[k] = el;
                     }}
                   >
-                    <span className={isActiveYear ? "active" : ""}>
-                      {item.year}
-                    </span>
-                  </div>
-                );
-              })}
+                    Q{k + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="cw-years" ref={yearsRef} aria-hidden>
+              {YEARS.map((year, index) => (
+                <div
+                  key={year}
+                  ref={(el) => {
+                    yearEls.current[index] = el;
+                  }}
+                  className="cw-year-item"
+                  style={{
+                    transform: `translate(-50%, -50%) rotate(${START_ANGLE + index * ANGLE_STEP}deg) translateX(var(--cw-year-r))`,
+                  }}
+                >
+                  <span>{year}</span>
+                </div>
+              ))}
             </div>
 
             <div className="cw-particles">
@@ -275,12 +335,7 @@ const Career = () => {
             </div>
 
             {isLg && (
-              <div
-                className="cw-text-ring"
-                style={{
-                  transform: `rotate(${-(START_ANGLE + activeIndex * TEXT_ANGLE_STEP)}deg)`,
-                }}
-              >
+              <div className="cw-text-ring" ref={textRingRef}>
                 {data.map((item, index) => (
                   <div
                     key={index}
@@ -292,6 +347,7 @@ const Career = () => {
                     <div
                       className={`cw-text ${index === activeIndex ? "active" : ""}`}
                     >
+                      <span className="cw-period">{periodLabel(item)}</span>
                       <h3>{item.headline}</h3>
                       <p>{item.desc}</p>
                     </div>
@@ -309,6 +365,7 @@ const Career = () => {
                     key={index}
                     className={`cw-text-item ${index === activeIndex ? "active" : ""}`}
                   >
+                    <span className="cw-period">{periodLabel(item)}</span>
                     <h3>{item.headline}</h3>
                     <p>{item.desc}</p>
                   </div>
