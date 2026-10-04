@@ -1,31 +1,31 @@
 import * as THREE from "three";
-import { RGBELoader } from "three-stdlib";
 import { gsap } from "gsap";
+import { loadHdr } from "../../utils/hdr";
+
+const ENV_SATURATION = 0.3;
 
 const setLighting = (scene: THREE.Scene) => {
   const directionalLight = new THREE.DirectionalLight(0xffb3ab, 0);
   directionalLight.intensity = 0;
   directionalLight.position.set(-0.47, -0.32, -1);
-  directionalLight.castShadow = true;
-  directionalLight.shadow.mapSize.width = 1024;
-  directionalLight.shadow.mapSize.height = 1024;
-  directionalLight.shadow.camera.near = 0.5;
-  directionalLight.shadow.camera.far = 50;
   scene.add(directionalLight);
 
   const pointLight = new THREE.PointLight(0xff9c9c, 0, 100, 3);
   pointLight.position.set(3, 12, 4);
-  pointLight.castShadow = true;
   scene.add(pointLight);
 
-  new RGBELoader()
-    .setPath("/models/")
-    .load("char_enviorment.hdr", function (texture) {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
+  // The map is pink, which flooded the whole model. Mostly desaturated, it
+  // fills the model with neutral light and leaves the colour to the rim light.
+  // Off until turnOnLights() fades it in, whether the map arrives before or after.
+  scene.environmentIntensity = 0;
+  scene.environmentRotation.set(5.76, 85.85, 1);
+  const environment = loadHdr("/models/char_enviorment.hdr", {
+    saturation: ENV_SATURATION,
+  })
+    .then((texture) => {
       scene.environment = texture;
-      scene.environmentIntensity = 0;
-      scene.environmentRotation.set(5.76, 85.85, 1);
-    });
+    })
+    .catch((err) => console.warn("[Character] environment map failed", err));
 
   function setPointLight(
     screenLight: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>
@@ -57,7 +57,8 @@ const setLighting = (scene: THREE.Scene) => {
     });
   }
 
-  return { setPointLight, turnOnLights };
+  /** settles once the environment map is in place (or has failed) */
+  return { setPointLight, turnOnLights, environment };
 };
 
 export default setLighting;

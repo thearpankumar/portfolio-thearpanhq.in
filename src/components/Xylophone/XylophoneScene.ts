@@ -8,6 +8,7 @@ import {
 } from "postprocessing";
 import {
   DoubleSide,
+  Mesh,
   NoToneMapping,
   PerspectiveCamera,
   Scene,
@@ -29,6 +30,7 @@ import { XylophoneBackdrop } from "./XylophoneBackdrop";
 import { Input, type GestureKind } from "./utils/input";
 import { Properties } from "./utils/properties";
 import { RAFCollection } from "./utils/RAFCollection";
+import { snapViewport } from "../utils/snapViewport";
 
 const MAX_DELTA = 1 / 20; // clamp long frames (tab restore) so nothing integrates a huge step
 
@@ -114,6 +116,7 @@ export class XylophoneScene {
     gl.setClearColor(0x000000, 0);
     gl.setPixelRatio(Properties.dpr);
     gl.setSize(Properties.viewportWidth, Properties.viewportHeight);
+    snapViewport(gl);
 
     const canvas = gl.domElement;
     canvas.className = "work-canvas";
@@ -237,13 +240,52 @@ export class XylophoneScene {
     this.visibilityObserver.observe(stage);
 
     // `load()` swallows its own asset failures, so a failed fetch only leaves the helix empty
-    void this.xylophone.load().then(() => {
+    void this.xylophone.load().then(async () => {
       if (this.destroyed) return;
       this.projectCards.mount();
+      await this.precompile();
+      if (this.destroyed) return;
       this.needsWarmUp = true;
     });
 
     this.update();
+  }
+
+  /**
+   * Creates every shader program the first frame needs without drawing it: one
+   * frame's render calls run with WebGLRenderer.render() swapped for
+   * compileAsync(). Each pass compiles its materials against the render target
+   * it really draws to (the target decides which program three picks), and the
+   * driver compiles them all in parallel (KHR_parallel_shader_compile). Drawing
+   * that frame instead stopped the page for half a second, as each shader
+   * compiled on first use.
+   */
+  private async precompile() {
+    const gl = this.gl;
+    const render = gl.render;
+    const pending: Promise<unknown>[] = [];
+    gl.render = (scene, camera) => {
+      // compile() ignores overrideMaterial, so lend it to every mesh meanwhile
+      const override = (scene as Scene).overrideMaterial;
+      const lent = new Map<Mesh, Mesh["material"]>();
+      if (override) {
+        scene.traverse((object) => {
+          if (!(object as Mesh).isMesh) return;
+          const mesh = object as Mesh;
+          lent.set(mesh, mesh.material);
+          mesh.material = override;
+        });
+      }
+      pending.push(gl.compileAsync(scene, camera));
+      lent.forEach((material, mesh) => (mesh.material = material));
+    };
+    try {
+      this.fluid.renderEachMaterial();
+      this.composer.render(1 / 60);
+    } finally {
+      gl.render = render;
+    }
+    await Promise.all(pending);
   }
 
   private get passes() {

@@ -134,7 +134,12 @@ const Plane = ({ onActive }: { onActive: (active: boolean) => void }) => {
   );
 };
 
-const ShaderTransition = () => {
+type ShaderTransitionProps = {
+  /** changes whenever .shader-seam markers are added or removed */
+  seams?: string;
+};
+
+const ShaderTransition = ({ seams }: ShaderTransitionProps) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   // Respect the OS "reduce motion" setting: no full-screen wipe at all
   const reducedMotion = useMemo(
@@ -162,7 +167,7 @@ const ShaderTransition = () => {
       triggers.forEach((t) => t.kill());
       shaderTransition.set(0);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, seams]);
 
   const setActive = useMemo(
     () => (active: boolean) => {

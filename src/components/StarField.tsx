@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 import type * as THREE from "three";
+import { snapViewport } from "./utils/snapViewport";
 import "./styles/StarField.css";
 
 const STAR_COUNT = 5000;
@@ -30,7 +31,7 @@ const reducedMotion = () =>
 const Stars = () => {
   const ref = useRef<THREE.Points>(null);
   const positions = useMemo(() => randomInSphere(STAR_COUNT, RADIUS), []);
-  const still = useMemo(reducedMotion, []);
+  const still = useMemo(() => reducedMotion(), []);
 
   useFrame((_state, delta) => {
     if (still || !ref.current) return;
@@ -65,6 +66,7 @@ const StarField = () => (
       gl={{ antialias: false, alpha: true, powerPreference: "low-power" }}
       onCreated={({ gl }) => {
         gl.domElement.style.pointerEvents = "none";
+        snapViewport(gl);
       }}
     >
       <Stars />

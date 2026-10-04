@@ -12,6 +12,7 @@ import {
 } from "./utils/mouseUtils";
 import setAnimations from "./utils/animationUtils";
 import { setProgress } from "../utils/progress";
+import { snapViewport } from "../utils/snapViewport";
 
 const Scene = () => {
   const canvasDiv = useRef<HTMLDivElement | null>(null);
@@ -37,6 +38,7 @@ const Scene = () => {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1;
+      snapViewport(renderer);
       canvasEl.appendChild(renderer.domElement);
 
       const camera = new THREE.PerspectiveCamera(14.5, aspect, 0.1, 1000);
@@ -49,7 +51,14 @@ const Scene = () => {
       let screenLight: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
       let mixer: THREE.AnimationMixer;
 
-      const clock = new THREE.Clock();
+      // THREE.Clock is deprecated; seconds since the previous call is all this needs
+      let lastTime = performance.now();
+      const getDelta = () => {
+        const now = performance.now();
+        const delta = (now - lastTime) / 1000;
+        lastTime = now;
+        return delta;
+      };
 
       const light = setLighting(scene);
       const progress = setProgress((value) => setLoading(value));
@@ -59,7 +68,8 @@ const Scene = () => {
         renderer,
         scene,
         camera,
-        () => cancelled
+        () => cancelled,
+        light.environment
       );
 
       loadCharacter().then((gltf) => {
@@ -105,17 +115,21 @@ const Scene = () => {
       const onMouseMove = (event: MouseEvent) => {
         handleMouseMove(event, (x, y) => (mouse = { x, y }));
       };
+      // a finger held for 200ms steers the head until it lifts (a quick swipe
+      // just scrolls the page)
       let debounce: number | undefined;
-      const onTouchStart = (event: TouchEvent) => {
-        const element = event.target as HTMLElement;
-        debounce = setTimeout(() => {
-          element?.addEventListener("touchmove", (e: TouchEvent) =>
-            handleTouchMove(e, (x, y) => (mouse = { x, y }))
-          );
-        }, 200);
+      let following = false;
+      const onTouchStart = () => {
+        window.clearTimeout(debounce);
+        debounce = window.setTimeout(() => (following = true), 200);
+      };
+      const onTouchMove = (event: TouchEvent) => {
+        if (following) handleTouchMove(event, (x, y) => (mouse = { x, y }));
       };
 
       const onTouchEnd = () => {
+        window.clearTimeout(debounce);
+        following = false;
         handleTouchEnd((x, y, interpolationX, interpolationY) => {
           mouse = { x, y };
           interpolation = { x: interpolationX, y: interpolationY };
@@ -125,8 +139,12 @@ const Scene = () => {
       document.addEventListener("mousemove", onMouseMove, { passive: true });
       const landingDiv = document.getElementById("landingDiv");
       if (landingDiv) {
-        landingDiv.addEventListener("touchstart", onTouchStart);
-        landingDiv.addEventListener("touchend", onTouchEnd);
+        // passive: none of them cancels the touch, so scrolling never waits on them
+        landingDiv.addEventListener("touchstart", onTouchStart, {
+          passive: true,
+        });
+        landingDiv.addEventListener("touchmove", onTouchMove, { passive: true });
+        landingDiv.addEventListener("touchend", onTouchEnd, { passive: true });
       }
       // Only render while the canvas is on screen and the tab is visible
       let rafId = 0;
@@ -145,7 +163,7 @@ const Scene = () => {
           );
           if (screenLight) light.setPointLight(screenLight);
         }
-        const delta = clock.getDelta();
+        const delta = getDelta();
         if (mixer) {
           mixer.update(delta);
         }
@@ -154,7 +172,7 @@ const Scene = () => {
       const start = () => {
         if (running || !inView || document.hidden) return;
         running = true;
-        clock.getDelta(); // discard time spent paused
+        getDelta(); // discard time spent paused
         rafId = requestAnimationFrame(animate);
       };
       const stop = () => {
@@ -163,11 +181,13 @@ const Scene = () => {
       };
       const observer = new IntersectionObserver(
         ([entry]) => {
-          inView = entry.isIntersecting;
+          // Not isIntersecting: that stays true while the canvas merely touches
+          // the edge of the screen, where it parks once the section has been read
+          inView = entry.intersectionRatio >= 0.01;
           if (inView) start();
           else stop();
         },
-        { rootMargin: "100px" }
+        { threshold: [0, 0.01] }
       );
       observer.observe(canvasEl);
       const onVisibility = () => (document.hidden ? stop() : start());
@@ -188,6 +208,7 @@ const Scene = () => {
         document.removeEventListener("mousemove", onMouseMove);
         if (landingDiv) {
           landingDiv.removeEventListener("touchstart", onTouchStart);
+          landingDiv.removeEventListener("touchmove", onTouchMove);
           landingDiv.removeEventListener("touchend", onTouchEnd);
         }
       };

@@ -296,6 +296,18 @@ export class FluidSim {
     point.velocity = Math.min(1, point.velocity);
   }
 
+  /**
+   * Hands every material to FBOHelper once, for XylophoneScene.precompile(), which
+   * turns these renders into background shader compiles. Left alone, they only
+   * run once the pointer first moves (the solve sleeps while idle) and would
+   * compile then, mid-hover.
+   */
+  renderEachMaterial() {
+    for (const material of Object.values(this.materials)) {
+      FBOHelper.render(material, this.fbos.velocity.write);
+    }
+  }
+
   private solve(): void {
     this.config.aspect =
       Properties.globalUniforms.u_resolution.value.x /

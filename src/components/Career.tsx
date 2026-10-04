@@ -105,7 +105,10 @@ const Career = () => {
         },
       });
     },
-    { dependencies: [data.length, variant] }
+    // revertOnUpdate: without it useGSAP only reverts on unmount, so a layout
+    // change (crossing 768/1024px) left the old pin in place and stacked a
+    // second one on it, which pushed the section off screen while pinned
+    { dependencies: [data.length, variant], revertOnUpdate: true }
   );
 
   // Group duplicate years so the year ring only shows each once

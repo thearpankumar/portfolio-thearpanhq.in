@@ -8,6 +8,8 @@ import { SMOOTHER_SPEED } from "./utils/smoother";
 import { techIcons } from "../data/techIcons";
 import type { TechIcon } from "../data/techIcons";
 import { Environment } from "@react-three/drei";
+import { loadHdr } from "./utils/hdr";
+import { snapViewport } from "./utils/snapViewport";
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import { Physics, useSphere } from "@react-three/cannon";
 
@@ -135,8 +137,6 @@ function SphereGeo({
   return (
     <mesh
       ref={ref}
-      castShadow
-      receiveShadow
       scale={scale}
       geometry={sphereGeometry}
       material={material}
@@ -179,31 +179,60 @@ const TECH_SCREENS = 2;
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const TechStack = () => {
+type TechStackProps = {
+  /** false hides the section (below the desktop breakpoint) without unmounting it */
+  active?: boolean;
+};
+
+const TechStack = ({ active = true }: TechStackProps) => {
   const [isActive, setIsActive] = useState(false);
   const [inView, setInView] = useState(false);
+  const [envMap, setEnvMap] = useState<THREE.DataTexture | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   // Pin the full-screen section so it takes TECH_SCROLL of scrolling to move on.
-  // useGSAP (layout timing + auto revert) like the other section pins.
-  useGSAP(() => {
-    ScrollTrigger.create({
-      id: "techstack",
-      trigger: wrapRef.current,
-      start: "top top",
-      end: `+=${TECH_SCREENS * 100 * SMOOTHER_SPEED}%`,
-      pin: true,
-      invalidateOnRefresh: true,
-    });
-  });
+  // useGSAP (layout timing + auto revert) like the other section pins; the
+  // revert removes the pin while the section is hidden.
+  useGSAP(
+    () => {
+      if (!active) return;
+      ScrollTrigger.create({
+        id: "techstack",
+        trigger: wrapRef.current,
+        start: "top top",
+        end: `+=${TECH_SCREENS * 100 * SMOOTHER_SPEED}%`,
+        pin: true,
+        invalidateOnRefresh: true,
+      });
+    },
+    { dependencies: [active], revertOnUpdate: true }
+  );
 
-  // Stop rendering/physics completely while the section is offscreen
+  useEffect(() => {
+    let cancelled = false;
+    let texture: THREE.DataTexture | undefined;
+    loadHdr("/models/char_enviorment.hdr")
+      .then((tex) => {
+        if (cancelled) return tex.dispose();
+        texture = tex;
+        setEnvMap(tex);
+      })
+      .catch((err) => console.warn("[TechStack] environment map failed", err));
+    return () => {
+      cancelled = true;
+      texture?.dispose();
+    };
+  }, []);
+
+  // Stop rendering/physics completely once the section is mostly off screen. The
+  // footer slides over the pinned canvas, so "any part visible" would keep the
+  // physics and the ambient occlusion running behind it. The last frame stays.
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { rootMargin: "200px" }
+      ([entry]) => setInView(entry.intersectionRatio > 0.3),
+      { threshold: [0, 0.3, 1] }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -249,7 +278,11 @@ const TechStack = () => {
   }, []);
 
   return (
-    <div className="techstack" ref={wrapRef}>
+    <div
+      className="techstack"
+      ref={wrapRef}
+      style={active ? undefined : { display: "none" }}
+    >
       {/* Marquee: two identical groups so translating by -50% -> 0 loops seamlessly */}
       <h2 className="tech-marquee" aria-label="My Techstack">
         <div className="tech-marquee-track" aria-hidden>
@@ -264,12 +297,14 @@ const TechStack = () => {
       </h2>
 
       <Canvas
-        shadows
         dpr={[1, 1.5]}
-        frameloop={inView ? "always" : "never"}
+        frameloop={active && inView ? "always" : "never"}
         gl={{ alpha: true, stencil: false, depth: false, antialias: false }}
         camera={{ position: [0, 0, 20], fov: 32.5, near: 1, far: 100 }}
-        onCreated={(state) => (state.gl.toneMappingExposure = 1.5)}
+        onCreated={({ gl }) => {
+          gl.toneMappingExposure = 1.5;
+          snapViewport(gl);
+        }}
         className="tech-canvas"
       >
         <ambientLight intensity={1} />
@@ -278,8 +313,6 @@ const TechStack = () => {
           penumbra={1}
           angle={0.2}
           color="white"
-          castShadow
-          shadow-mapSize={[512, 512]}
         />
         <directionalLight position={[0, 5, -4]} intensity={2} />
         <Physics
@@ -297,11 +330,13 @@ const TechStack = () => {
             />
           ))}
         </Physics>
-        <Environment
-          files="/models/char_enviorment.hdr"
-          environmentIntensity={0.5}
-          environmentRotation={[0, 4, 2]}
-        />
+        {envMap && (
+          <Environment
+            map={envMap}
+            environmentIntensity={0.5}
+            environmentRotation={[0, 4, 2]}
+          />
+        )}
         <EffectComposer enableNormalPass={false} multisampling={0}>
           <N8AO
             color="#2c0008"

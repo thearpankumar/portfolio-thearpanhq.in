@@ -4,7 +4,7 @@ import { setCharTimeline } from "../../utils/GsapScroll";
 export default function handleResize(
   renderer: THREE.WebGLRenderer,
   camera: THREE.PerspectiveCamera,
-  canvasDiv: React.RefObject<HTMLDivElement>,
+  canvasDiv: React.RefObject<HTMLDivElement | null>,
   character: THREE.Object3D
 ) {
   if (!canvasDiv.current) return;

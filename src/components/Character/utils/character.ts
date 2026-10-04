@@ -8,7 +8,10 @@ const setCharacter = (
   scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   // true once the owning effect has been cleaned up (StrictMode remount, unmount)
-  isStale: () => boolean = () => false
+  isStale: () => boolean = () => false,
+  // the scene's environment map: the materials' shaders depend on it, so they
+  // are compiled once it is in place rather than again on the first frame
+  environment: Promise<unknown> = Promise.resolve()
 ) => {
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
@@ -34,6 +37,12 @@ const setCharacter = (
         blobUrl,
         async (gltf) => {
           character = gltf.scene;
+          if (isStale()) {
+            dracoLoader.dispose();
+            resolve(null);
+            return;
+          }
+          await environment;
           if (isStale()) {
             dracoLoader.dispose();
             resolve(null);

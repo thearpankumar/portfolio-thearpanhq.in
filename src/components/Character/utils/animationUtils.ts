@@ -24,8 +24,7 @@ const setAnimations = (gltf: GLTF) => {
         console.error(`Animation "${name}" not found`);
       }
     });
-    let typingAction: THREE.AnimationAction | null = null;
-    typingAction = createBoneAction(gltf, mixer, "typing", typingBoneNames);
+    const typingAction = createBoneAction(gltf, mixer, "typing", typingBoneNames);
     if (typingAction) {
       typingAction.enabled = true;
       typingAction.play();

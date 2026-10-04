@@ -22,6 +22,11 @@ const MainContainer = ({ children }: PropsWithChildren) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
     window.innerWidth > 1024
   );
+  // Once loaded, the tech stack stays mounted and is only hidden below the
+  // breakpoint: crossing it (a resize, docking devtools) then neither tears down
+  // its WebGL context nor rebuilds the whole scene on the way back.
+  const [techStackLoaded, setTechStackLoaded] = useState(false);
+  if (isDesktopView && !isLoading && !techStackLoaded) setTechStackLoaded(true);
 
   useEffect(() => {
     let timer: number | undefined;
@@ -45,8 +50,8 @@ const MainContainer = ({ children }: PropsWithChildren) => {
     <div className="container-main">
       <Navbar />
       <SocialIcons />
-      {/* remount when the tech-stack seam appears/disappears (desktop <-> mobile) */}
-      <ShaderTransition key={String(isDesktopView)} />
+      {/* the tech-stack seam appears/disappears with the desktop layout */}
+      <ShaderTransition seams={String(isDesktopView)} />
       {isDesktopView && children}
       <div id="smooth-wrapper">
         <div id="smooth-content">
@@ -59,9 +64,9 @@ const MainContainer = ({ children }: PropsWithChildren) => {
             <div className="shader-seam" />
             <Work />
             {isDesktopView && <div className="shader-seam" />}
-            {isDesktopView && !isLoading && (
+            {techStackLoaded && (
               <Suspense fallback={<div>Loading....</div>}>
-                <TechStack />
+                <TechStack active={isDesktopView} />
               </Suspense>
             )}
             <Contact />
