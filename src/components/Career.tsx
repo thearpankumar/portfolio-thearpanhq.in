@@ -210,7 +210,13 @@ const Career = () => {
             </div>
 
             <div className="cw-logo">
-              <img src="/images/logo.png" alt="Arpan Kumar" />
+              <img
+                src="/images/logo-avatar.webp"
+                alt="Arpan Kumar"
+                width={72}
+                height={72}
+                decoding="async"
+              />
             </div>
 
             <div

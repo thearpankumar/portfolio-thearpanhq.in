@@ -12,7 +12,8 @@ const socials = [
 const Contact = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Only decode the video while the footer is actually on screen
+  // The video isn't fetched until the footer is about to come on screen, and is
+  // only decoded while it is
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -32,13 +33,17 @@ const Contact = () => {
       <div className="contact-hole" aria-hidden>
         <video
           ref={videoRef}
-          src="/videos/blackhole.webm"
-          autoPlay
+          poster="/videos/blackhole-poster.webp"
           muted
           loop
           playsInline
-          preload="auto"
-        />
+          preload="none"
+        >
+          {/* H.264 is the smaller file (1080p, ~175 kB) and plays everywhere;
+              the 4K WebM is the fallback */}
+          <source src="/videos/blackhole.mp4" type="video/mp4" />
+          <source src="/videos/blackhole.webm" type="video/webm" />
+        </video>
       </div>
 
       <div className="contact-container section-container">

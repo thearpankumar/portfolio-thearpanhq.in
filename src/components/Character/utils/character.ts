@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { DRACOLoader, GLTF, GLTFLoader } from "three-stdlib";
+import { GLTF, GLTFLoader, MeshoptDecoder } from "three-stdlib";
 import { setCharTimeline } from "../../utils/GsapScroll";
 import { decryptFile } from "./decrypt";
 
@@ -14,9 +14,8 @@ const setCharacter = (
   environment: Promise<unknown> = Promise.resolve()
 ) => {
   const loader = new GLTFLoader();
-  const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath("/draco/");
-  loader.setDRACOLoader(dracoLoader);
+  // the model's geometry is Meshopt-compressed (see scripts/build-model.mjs)
+  loader.setMeshoptDecoder(MeshoptDecoder());
 
   const loadCharacter = async (): Promise<GLTF | null> => {
     let blobUrl: string;
@@ -38,19 +37,16 @@ const setCharacter = (
         async (gltf) => {
           character = gltf.scene;
           if (isStale()) {
-            dracoLoader.dispose();
             resolve(null);
             return;
           }
           await environment;
           if (isStale()) {
-            dracoLoader.dispose();
             resolve(null);
             return;
           }
           await renderer.compileAsync(character, camera, scene);
           if (isStale()) {
-            dracoLoader.dispose();
             resolve(null);
             return;
           }
@@ -66,7 +62,6 @@ const setCharacter = (
           setCharTimeline(character, camera);
           character!.getObjectByName("footR")!.position.y = 3.36;
           character!.getObjectByName("footL")!.position.y = 3.36;
-          dracoLoader.dispose();
         },
         undefined,
         (error) => {

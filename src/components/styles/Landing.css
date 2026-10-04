@@ -162,7 +162,7 @@
   top: 12%;
   left: 0;
 }
-.landing-intro h2 {
+.landing-intro .landing-greeting {
   margin: 0;
   color: var(--accentColor);
   font-size: 22px;
@@ -266,7 +266,7 @@ h2.landing-info-h2 {
   .landing-info h3 {
     font-size: 20px;
   }
-  .landing-intro h2 {
+  .landing-intro .landing-greeting {
     font-size: 18px;
   }
   .landing-intro h1 {
@@ -286,7 +286,7 @@ h2.landing-info-h2 {
   .character-model {
     height: 80vh;
   }
-  .landing-intro h2 {
+  .landing-intro .landing-greeting {
     font-size: 22px;
   }
   .landing-intro h1 {
@@ -322,7 +322,7 @@ h2.landing-info-h2 {
     transform: translateY(-50%);
     max-width: 50%;
   }
-  .landing-intro h2 {
+  .landing-intro .landing-greeting {
     font-size: 22px;
   }
   .landing-intro h1 {
@@ -390,7 +390,7 @@ h2.landing-info-h2 {
     left: 80px;
     top: 32%;
   }
-  .landing-intro h2 {
+  .landing-intro .landing-greeting {
     font-size: 26px;
   }
   .landing-intro h1 {

@@ -24,7 +24,7 @@ A scroll-driven 3D portfolio: a character that follows you down the page, a star
 ---
 ## Preview 
 
-![Preview](public/readme/preview.gif)
+![Preview](docs/preview.gif)
 
 ## Highlights
 
