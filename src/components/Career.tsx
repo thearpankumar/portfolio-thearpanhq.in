@@ -124,7 +124,7 @@ const Career = () => {
 
   return (
     <>
-      <div className="career-heading section-container">
+      <div className="career-heading section-container" id="career">
         <h2>
           My career <span>&</span>
           <br /> experience

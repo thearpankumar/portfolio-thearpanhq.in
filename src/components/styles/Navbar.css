@@ -3,6 +3,7 @@
   max-width: var(--cMaxWidth);
   width: var(--cWidth);
   justify-content: space-between;
+  align-items: center;
   padding: 20px 0px;
   margin-bottom: -100px;
   box-sizing: border-box;
@@ -12,7 +13,9 @@
   top: 0;
   z-index: 9999;
 }
-.header ul {
+/* ABOUT and WORK on the left, PROJECTS and CONTACT on the right. On phones each
+   pair is a short two-line column, so the header stays clear of the landing text */
+.header-nav {
   font-size: 12px;
   display: flex;
   flex-direction: column;
@@ -20,10 +23,13 @@
   padding: 0;
   list-style: none;
   column-gap: 40px;
-  row-gap: 8px;
-  align-items: end;
+  row-gap: 6px;
+  align-items: flex-start;
 }
-.header ul li {
+.header-nav--right {
+  align-items: flex-end;
+}
+.header-nav li {
   margin-left: 0px;
   letter-spacing: 1px;
   color: #ccc;
@@ -40,45 +46,24 @@
   letter-spacing: 1px;
   font-weight: 500;
 }
-.navbar-title {
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.2px;
-  display: flex;
-  align-items: center;
-}
-.navbar-logo {
-  height: 42px;
-  width: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
-  border: 2px solid rgba(255, 92, 92, 0.5);
-  box-shadow: 0 0 12px rgba(255, 92, 92, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.navbar-logo:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 18px rgba(255, 92, 92, 0.6);
-}
 @media only screen and (min-width: 500px) {
-  .header {
-    padding: 20px 0px;
-  }
-  .header ul {
-    flex-direction: row;
-    align-items: center;
+  .header-nav {
     font-size: 14px;
   }
-  .header ul li {
+  .header-nav li {
     color: #eae5ec;
   }
-  .navbar-title {
-    font-size: 16px;
+}
+/* each pair on one line */
+@media only screen and (min-width: 768px) {
+  .header-nav {
+    flex-direction: row;
+    align-items: center;
+    column-gap: 28px;
   }
 }
-@media only screen and (min-width: 900px) {
+/* only where the nav leaves room for it in the middle */
+@media only screen and (min-width: 1025px) {
   .navbar-connect {
     display: block;
   }
@@ -87,14 +72,11 @@
   .header {
     padding: 35px 0px;
   }
-  .header ul {
-    column-gap: 80px;
+  .header-nav {
+    column-gap: 48px;
     font-size: 16px;
   }
   .navbar-connect {
     font-size: 16px;
-  }
-  .navbar-title {
-    font-size: 18px;
   }
 }

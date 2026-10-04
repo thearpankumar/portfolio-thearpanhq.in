@@ -1,210 +1,443 @@
-.work-section h2 {
-  margin-top: 100px;
-  font-size: 70px;
-  font-weight: 500;
-}
-.work-section h2 > span {
-  color: var(--accentColor);
-}
+/* Work: glass project capsules riding a WebGL xylophone helix (ported from
+   references/xylophone). The section is pinned (Work.tsx) and the page scroll
+   drives the helix; the canvas is transparent, so the page background and the
+   star field stay visible behind it. */
 .work-section {
-  transition: 0s;
-  height: 100vh;
-  box-sizing: border-box;
-  will-change: transform;
-}
-.work-container {
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  align-content: stretch;
-}
-.work-flex {
-  width: 100%;
-  display: flex;
-  height: 100%;
-  margin-left: -80px;
-  padding-right: 120px;
+  --work-text: #eae5ec;
+  --work-text-soft: #adacac;
   position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: clip;
+  isolation: isolate;
+  will-change: transform;
+  -webkit-touch-callout: none;
 }
-.work-box {
-  padding: 80px;
-  display: flex;
-  flex-direction: column;
-  width: 600px;
-  box-sizing: border-box;
-  border-right: 1px solid #363636;
-  flex-shrink: 0;
-  gap: 50px;
-  justify-content: start;
-}
-.work-flex .work-box:nth-child(even) {
-  flex-direction: column-reverse;
-}
-.work-flex::before,
-.work-flex::after {
-  content: "";
-  width: calc(50000vw);
-  height: 1px;
-  background-color: #363636;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-}
-.work-flex::after {
-  top: 100%;
-}
-.work-title {
-  justify-content: space-between;
-  display: flex;
-  width: 100%;
-  margin-bottom: 20px;
-}
-.work-title > div {
-  text-align: right;
-}
-.work-title h3 {
-  font-size: 50px;
-  line-height: 50px;
-  margin: 0;
-  font-weight: 600;
+.work-section a,
+.work-section button {
+  -webkit-tap-highlight-color: transparent;
 }
 
-.work-info h4 {
-  font-size: 18px;
-  font-weight: 400;
-  margin: 0;
-}
-.work-info p {
-  font-weight: 200;
-  color: #adacac;
-  margin: 0;
-  margin-top: 3px;
-}
-.work-info > p {
-  width: 90%;
-}
-.work-image {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-}
-.work-image-in {
-  position: relative;
-}
-.work-link {
+/* added by XylophoneScene; sized to the section by the renderer */
+.work-canvas {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background-color: var(--backgroundColor);
-  width: 50px;
-  border-radius: 50px;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 25px;
-  box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.5),
-    inset 0px 0px 10px 0px #393939;
-  transition: 0.3s;
-  opacity: 0;
-}
-.work-image a:hover {
-  color: inherit;
-}
-.work-image a:hover .work-link {
-  opacity: 1;
-}
-.work-image video {
-  position: absolute;
-  width: 100%;
-  height: 100%;
   top: 0;
   left: 0;
-  background-color: #000;
-  object-fit: cover;
+  pointer-events: none;
 }
-.work-image img {
-  max-width: 100%;
-  max-height: 350px;
+
+/* -------------------------------------------------------------------------- */
+/*                                  overlays                                  */
+/* -------------------------------------------------------------------------- */
+/* In viewport units, like the helix: the 3D composition scales with the
+   viewport, so the intro column has to as well to stay clear of the bars.
+   Ignores the pointer unless a child is interactive, so hovering the helix
+   behind still rings the bars. */
+.work-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(20px, 8vw, 160px);
+  right: clamp(20px, 5vw, 100px);
+  z-index: 20;
+  pointer-events: none;
 }
-@media only screen and (max-height: 900px) {
-  .work-image img {
-    max-height: 250px;
-  }
-  .work-box {
-    padding-top: 40px;
-    padding-bottom: 40px;
-  }
-  .work-section h2 {
-    font-size: 60px;
-    margin-bottom: 30px;
-    margin-top: 70px;
-  }
+
+.work-intro {
+  position: absolute;
+  top: clamp(110px, 17vh, 180px);
+  left: 0;
+  width: min(22vw, 330px);
 }
-@media only screen and (max-width: 1400px) {
-  .work-title h3 {
-    font-size: 35px;
-  }
-  .work-info p {
-    font-size: 13px;
-  }
-  .work-info h4 {
-    font-size: 15px;
-  }
-  .work-box {
-    width: 450px;
-    padding: 50px;
-  }
-  .work-flex {
-    margin-left: -50px;
-    padding-right: 75px;
-  }
-  .work-section h2 {
-    font-size: 50px;
-  }
+.work-intro h2 {
+  margin: 0;
+  font-size: 70px;
+  font-weight: 500;
+  line-height: 1;
 }
-@media only screen and (max-width: 1400px) {
-  .work-box {
-    width: 350px;
-    padding: 30px;
-  }
-  .work-flex {
-    margin-left: -30px;
-    padding-right: 45px;
+.work-intro h2 > span {
+  color: var(--accentColor);
+}
+.work-intro__text {
+  margin: 28px 0 0;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--work-text-soft);
+}
+
+.work-progress {
+  position: absolute;
+  bottom: clamp(40px, 9vh, 100px);
+  left: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 2.4vw, 38px);
+  color: rgb(255 255 255 / 0.9);
+}
+.work-progress__track {
+  position: relative;
+  flex: none;
+  width: 2px;
+  height: clamp(120px, 22vh, 220px);
+  border-radius: 1px;
+  background: linear-gradient(rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.15));
+}
+/* --progress is set on the section by the scene, 0 = first card, 1 = last */
+.work-progress__dot {
+  position: absolute;
+  top: calc(var(--progress, 0) * 100%);
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgb(255 92 92 / 0.35);
+  box-shadow:
+    0 0 18px rgb(255 92 92 / 0.6),
+    inset 0 0 8px rgb(255 255 255 / 0.35);
+}
+.work-progress__label {
+  display: grid;
+  gap: 1.2vh;
+  margin: 8vh 0 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.work-progress__count {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+  opacity: 0.85;
+}
+.work-progress__hint {
+  color: var(--work-text-soft);
+}
+
+/* the wheel drives the helix right now — say so, so the boundary with page
+   scroll isn't a surprise (the scene toggles .is-engaged) */
+.work-progress__dot,
+.work-progress__hint {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    color 0.3s ease;
+}
+.work-section.is-engaged .work-progress__dot {
+  transform: scale(1.25);
+  box-shadow:
+    0 0 26px rgb(255 92 92 / 0.9),
+    inset 0 0 10px rgb(255 255 255 / 0.5);
+}
+.work-section.is-engaged .work-progress__hint {
+  color: var(--work-text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-progress__dot,
+  .work-progress__hint {
+    transition: none;
   }
 }
 
-@media only screen and (max-height: 650px) {
-  .work-image img {
-    max-height: 200px;
-  }
-  .work-section h2 {
-    font-size: 40px;
-    margin-bottom: 20px;
-  }
-  .work-box {
-    gap: 20px;
+/* -------------------------------------------------------------------------- */
+/*                                project cards                               */
+/* -------------------------------------------------------------------------- */
+/* The scene gives each card one matrix3d() that lands it on its WebGL slab. The
+   parent is a plain 2D box on purpose: no perspective, no preserve-3d, and no
+   backdrop-filter — the frosted glass itself is drawn in WebGL. `clip` rather
+   than `hidden`, so focusing a card can never scroll this box. */
+.work-cards {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow: clip;
+  pointer-events: none;
+}
+.work-cards__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.work-card {
+  --active: 0;
+  --hover: 0;
+  --blur: 0;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--card-radius);
+  transform-origin: 0 0;
+  opacity: 0;
+  pointer-events: auto;
+  /* a lit rim and a red bloom on the active card — the slab adds its own
+     iridescent edge */
+  box-shadow:
+    0 0 0 1.5px
+      rgb(255 255 255 / calc(var(--active) * 0.3 + var(--hover) * 0.2)),
+    0 0 26px 2px rgb(255 77 77 / calc(var(--active) * 0.4 + var(--hover) * 0.2)),
+    0 22px 70px -10px
+      rgb(225 29 46 / calc(var(--active) * 0.45 + var(--hover) * 0.2));
+}
+.work-card.is-hidden {
+  pointer-events: none;
+}
+
+.work-card__link,
+.work-card__link:hover {
+  display: flex;
+  align-items: stretch;
+  gap: 22px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20px 22px 20px 20px;
+  border-radius: inherit;
+  color: var(--work-text);
+  cursor: pointer;
+  filter: blur(calc(var(--blur) * 3px));
+}
+/* a project without a link only comes round; once in front there's nothing to open */
+.work-card.is-active div.work-card__link {
+  cursor: default;
+}
+.work-card__link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 5px;
+}
+
+.work-card__thumb {
+  flex: none;
+  align-self: center;
+  width: 124px;
+  height: 124px;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow:
+    0 8px 20px rgb(0 0 0 / 0.45),
+    0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+.work-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+.work-card__title {
+  overflow: hidden;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.work-card__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--work-text-soft);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.work-card__tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow: hidden; /* a long tag list clips rather than running under the side column */
+}
+.work-card__tag {
+  padding: 5px 13px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--work-text);
+  white-space: nowrap;
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.12),
+    rgb(255 255 255 / 0.04)
+  );
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.work-card__side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.work-card__year {
+  margin-top: 6px;
+  font-size: 19px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--work-text-soft);
+}
+.work-card__go {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: #fff;
+  background: radial-gradient(circle at 32% 28%, #ff9a9a, #ff4d4d 55%, #c4161c);
+  box-shadow:
+    0 8px 24px rgb(255 77 77 / 0.45),
+    inset 0 1px 1px rgb(255 255 255 / 0.5);
+  opacity: max(var(--active), var(--hover));
+  transform: scale(calc(0.7 + 0.3 * max(var(--active), var(--hover))));
+}
+.work-card__go svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* narrow layouts use a smaller design size — see resolveLayout(). The year
+   moves to the corner and the go button goes: a tap on the card opens it, and
+   the tags need the width. */
+.work-cards__list.is-compact .work-card__link {
+  position: relative;
+  gap: 14px;
+  padding: 16px 16px 16px 14px;
+}
+.work-cards__list.is-compact .work-card__side {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.work-cards__list.is-compact .work-card__go {
+  display: none;
+}
+.work-cards__list.is-compact .work-card__thumb {
+  width: 88px;
+  height: 88px;
+  border-radius: 14px;
+}
+.work-cards__list.is-compact .work-card__body {
+  gap: 4px;
+}
+.work-cards__list.is-compact .work-card__title {
+  padding-right: 44px; /* clear of the year */
+  font-size: 19px;
+}
+.work-cards__list.is-compact .work-card__desc {
+  font-size: 13px;
+}
+.work-cards__list.is-compact .work-card__tags {
+  gap: 6px;
+  margin-top: 6px;
+}
+.work-cards__list.is-compact .work-card__tag {
+  padding: 4px 9px;
+  font-size: 11px;
+}
+.work-cards__list.is-compact .work-card__year {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+/* No WebGL: the cards as a plain list under the heading */
+.work-section.is-static .work-cards {
+  top: clamp(240px, 36vh, 360px);
+  overflow: auto;
+  pointer-events: auto;
+}
+.work-section.is-static .work-card {
+  position: relative;
+  width: min(540px, calc(100% - 30px));
+  height: auto;
+  margin: 0 auto 16px;
+  opacity: 1;
+  border-radius: 20px;
+  border: 1px solid #363636;
+  background: rgb(255 255 255 / 0.04);
+}
+.work-section.is-static .work-progress {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-card__link {
+    filter: none;
   }
 }
-/* @media only screen and (max-width: 900px) {
-  .work-image img {
-    max-height: 200px;
+
+/* -------------------------------------------------------------------------- */
+/*                                 responsive                                 */
+/* -------------------------------------------------------------------------- */
+@media only screen and (max-height: 900px) {
+  .work-intro h2 {
+    font-size: 60px;
   }
-  .work-section h2 {
+}
+@media only screen and (max-width: 1400px) {
+  .work-intro h2 {
+    font-size: 50px;
+  }
+  .work-intro__text {
+    font-size: 14px;
+  }
+}
+@media only screen and (max-height: 650px) {
+  .work-intro h2 {
     font-size: 40px;
-    margin-bottom: 20px;
   }
-  .work-box {
-    gap: 20px;
+  .work-intro__text {
+    margin-top: 16px;
   }
-} */
-@media only screen and (max-width: 1025px) {
-  .work-container {
-    align-content: normal;
+}
+
+/* matches resolveLayout(): below 760px wide, or roughly square and taller */
+@media (max-width: 759.98px), (max-aspect-ratio: 21/20) {
+  .work-intro {
+    top: 100px;
+    right: 0;
+    width: auto;
   }
-  .work-flex {
-    height: auto;
+  .work-intro h2 {
+    font-size: 40px;
+  }
+  /* the cards need the height more than the blurb does */
+  .work-intro__text {
+    display: none;
+  }
+  .work-progress {
+    left: 4px;
+    bottom: 28px;
+    gap: 16px;
+  }
+  .work-progress__track {
+    height: 96px;
+  }
+  .work-progress__dot {
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+  }
+  .work-progress__label {
+    margin-top: 28px;
+    font-size: 13px;
+  }
+  .work-progress__hint {
+    display: none;
   }
 }

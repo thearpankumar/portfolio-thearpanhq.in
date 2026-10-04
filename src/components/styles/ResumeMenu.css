@@ -1,0 +1,215 @@
+/* The resume icon in the side social column. It looks like its neighbours (a
+   plain glyph, placed and hover-styled by SocialIcons.css) and opens a flyout
+   beside the column: a connector reaches out from the icon, a red rail draws
+   down, then each role slides in along it, one after another. */
+.resume-menu {
+  --icon: 38px;
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* the flyout passes over the icons below */
+}
+
+.resume-trigger {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 0;
+  cursor: pointer;
+}
+.resume-trigger svg {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.resume-menu.open .resume-trigger svg {
+  transform: rotate(-8deg) scale(1.08);
+}
+.resume-trigger:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  flyout                                    */
+/* -------------------------------------------------------------------------- */
+/* Starts at the column's edge and pads out to the roles, so the gap is part of
+   the menu and the pointer can cross it without the menu closing. The first
+   role is centred on the resume icon; the rest stack below it. */
+.resume-roles {
+  --reach: 18px;
+  position: absolute;
+  left: 100%;
+  top: calc(50% - var(--icon) / 2);
+  margin: 0;
+  padding: 0 0 0 var(--reach);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.resume-menu.open .resume-roles {
+  pointer-events: auto;
+}
+
+/* the connector out of the column, then the rail down through the role icons */
+.resume-roles::after,
+.resume-roles::before {
+  content: "";
+  position: absolute;
+  border-radius: 1px;
+  background: #ff6b6b;
+  transition: transform 0.2s ease-in;
+}
+.resume-roles::after {
+  left: 0;
+  top: calc(var(--icon) / 2 - 1px);
+  width: var(--reach);
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition-delay: 0.1s;
+}
+.resume-roles::before {
+  left: calc(var(--reach) + var(--icon) / 2 - 1px);
+  top: calc(var(--icon) / 2);
+  bottom: calc(var(--icon) / 2);
+  width: 2px;
+  background: linear-gradient(#ff6b6b, rgba(255, 107, 107, 0.2));
+  transform: scaleY(0);
+  transform-origin: top;
+}
+.resume-menu.open .resume-roles::after {
+  transform: scaleX(1);
+  transition: transform 0.18s ease-out;
+}
+.resume-menu.open .resume-roles::before {
+  transform: scaleY(1);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+}
+
+.resume-role {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px 0 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  /* closed: tucked back toward the column, closing in reverse order */
+  opacity: 0;
+  transform: translateX(-14px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.2s ease;
+  transition-delay: calc((2 - var(--i)) * 0.03s);
+}
+.resume-menu.open .resume-role {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.25s ease,
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(0.18s + var(--i) * 0.08s); /* after the rail */
+}
+
+.resume-role__icon {
+  position: relative;
+  width: var(--icon);
+  height: var(--icon);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 18px;
+  background: linear-gradient(145deg, #ff5c5c, #c81e2e);
+  box-shadow: 0 6px 18px rgba(255, 50, 50, 0.35);
+  transform: scale(0.4);
+  transition: transform 0.2s ease;
+}
+.resume-menu.open .resume-role__icon {
+  transform: scale(1);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(0.18s + var(--i) * 0.08s);
+}
+
+/* the label unrolls from the icon, a beat after it lands */
+.resume-role__label {
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(12, 7, 8, 0.95);
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  clip-path: inset(0 100% 0 0 round 999px);
+  transition:
+    clip-path 0.15s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.resume-menu.open .resume-role__label {
+  clip-path: inset(0 0 0 0 round 999px);
+  transition:
+    clip-path 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.2s ease,
+    border-color 0.2s ease;
+  transition-delay: calc(0.3s + var(--i) * 0.08s), 0s, 0s;
+}
+
+.resume-role:hover .resume-role__label,
+.resume-role:focus-visible .resume-role__label {
+  color: var(--accentColor);
+  border-color: rgba(255, 107, 107, 0.6);
+}
+.resume-menu.open .resume-role:hover .resume-role__icon {
+  transform: scale(1.1);
+  transition-delay: 0s;
+}
+.resume-role:focus-visible {
+  outline: none;
+}
+.resume-role:focus-visible .resume-role__icon {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+/* click feedback: an expanding ring round the icon */
+.resume-role__icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #ff6b6b;
+  opacity: 0;
+}
+.resume-role.pulse .resume-role__icon::before {
+  animation: resume-pulse 0.7s ease-out;
+}
+@keyframes resume-pulse {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-roles::before,
+  .resume-roles::after,
+  .resume-role,
+  .resume-role__icon,
+  .resume-role__label,
+  .resume-trigger svg {
+    transition-duration: 0.01s !important;
+    transition-delay: 0s !important;
+  }
+}

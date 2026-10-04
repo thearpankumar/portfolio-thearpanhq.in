@@ -1,7 +1,6 @@
 import { useLayoutEffect } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HoverLinks from "./HoverLinks";
-import ResumeOrb from "./ResumeOrb";
 import { gsap } from "gsap";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { smootherRef, SMOOTHER_SPEED } from "./utils/smoother";
@@ -43,7 +42,18 @@ const Navbar = () => {
   return (
     <>
       <div className="header">
-        <ResumeOrb />
+        <ul className="header-nav">
+          <li>
+            <a data-href="#about" href="#about">
+              <HoverLinks text="ABOUT" />
+            </a>
+          </li>
+          <li>
+            <a data-href="#career" href="#career">
+              <HoverLinks text="WORK" />
+            </a>
+          </li>
+        </ul>
         <a
           href="mailto:arpankumar1119@gmail.com"
           className="navbar-connect"
@@ -51,15 +61,10 @@ const Navbar = () => {
         >
           arpankumar1119@gmail.com
         </a>
-        <ul>
-          <li>
-            <a data-href="#about" href="#about">
-              <HoverLinks text="ABOUT" />
-            </a>
-          </li>
+        <ul className="header-nav header-nav--right">
           <li>
             <a data-href="#work" href="#work">
-              <HoverLinks text="WORK" />
+              <HoverLinks text="PROJECTS" />
             </a>
           </li>
           <li>

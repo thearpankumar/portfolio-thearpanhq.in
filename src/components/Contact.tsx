@@ -55,11 +55,12 @@ const Contact = () => {
         </a>
 
         <div className="contact-flex">
-          {/* Desktop: the fixed side icons glide into these slots (SocialIcons.tsx) */}
+          {/* Desktop: the fixed side icons (resume + four socials) glide into
+              these slots (SocialIcons.tsx) */}
           <div className="contact-box contact-icons-box">
             <h4>Find me</h4>
             <div className="contact-icons-slot" aria-hidden>
-              {[0, 1, 2, 3].map((i) => (
+              {[0, 1, 2, 3, 4].map((i) => (
                 <span className="contact-icon-target" key={i} />
               ))}
             </div>

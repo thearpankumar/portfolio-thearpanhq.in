@@ -215,17 +215,17 @@
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
-.landing-h2-info,
-.landing-h2-info-1,
-.landing-h2-1,
-.landing-h2-2 {
-  white-space: nowrap;
-}
-.landing-h2-info-1,
-.landing-h2-2 {
+/* every role sits in the same spot; an invisible copy of the longest one
+   sizes the line, so nothing reflows as they rotate (see initialFX.ts) */
+.landing-role {
   position: absolute;
   top: 0;
   left: 0;
+  white-space: nowrap;
+}
+.landing-role-sizer {
+  visibility: hidden;
+  white-space: nowrap;
 }
 h2.landing-info-h2 {
   color: #ff5c5c;
@@ -242,10 +242,9 @@ h2.landing-info-h2 {
 .landing-info-h2::after {
   content: "";
   position: absolute;
-  /* wider than the block: this line is set larger than the one that sizes the
-     block, so long words ("PRODUCT ENGINEER") run past 100% and would otherwise
-     stick out of the fade */
-  width: 160%;
+  /* the block is sized by the longest role; a little extra covers the
+     letter-spacing that runs past it */
+  width: 110%;
   height: 120%;
   z-index: 3;
   background-image: linear-gradient(
@@ -274,12 +273,13 @@ h2.landing-info-h2 {
     font-size: 30px;
     line-height: 30px;
   }
+  /* capped by width: "OPEN SOURCE CONTRIBUTOR" must fit a 500px screen */
   .landing-info h2 {
-    font-size: 26px;
-    line-height: 32px;
+    font-size: min(26px, 4.8vw);
+    line-height: 1.25;
   }
   h2.landing-info-h2 {
-    font-size: 32px;
+    font-size: min(32px, 5.6vw);
   }
 }
 @media screen and (min-width: 768px) {
@@ -351,15 +351,18 @@ h2.landing-info-h2 {
     line-height: 1.2;
   }
 
+  /* In vw so the longest role ("OPEN SOURCE CONTRIBUTOR", about 15x its font
+     size wide) ends before the character, whose head starts ~56% across the
+     screen at every desktop width. The 1280px and 1600px steps keep to it. */
   .landing-info h2 {
-    font-size: clamp(28px, 2.9vw, 46px);
+    font-size: clamp(24px, 2.6vw, 44px);
     line-height: 1.2;
     margin-top: -14px;
     margin-left: 14px;
   }
 
   h2.landing-info-h2 {
-    font-size: clamp(34px, 3.6vw, 56px);
+    font-size: clamp(28px, 2.9vw, 50px);
     line-height: 1.2;
   }
 }
@@ -376,10 +379,10 @@ h2.landing-info-h2 {
     font-size: 24px;
   }
   .landing-info h2 {
-    font-size: clamp(32px, 3.2vw, 50px);
+    font-size: clamp(30px, 2.6vw, 50px);
   }
   h2.landing-info-h2 {
-    font-size: clamp(40px, 3.8vw, 62px);
+    font-size: clamp(34px, 2.9vw, 60px);
   }
 }
 @media screen and (min-width: 1600px) {
@@ -403,13 +406,13 @@ h2.landing-info-h2 {
     margin-bottom: 8px;
   }
   .landing-info h2 {
-    font-size: 48px;
-    line-height: 54px;
+    font-size: min(2.6vw, 56px);
+    line-height: 1.15;
     margin-top: -16px;
     margin-left: 16px;
   }
   h2.landing-info-h2 {
-    font-size: 60px;
-    line-height: 66px;
+    font-size: min(2.9vw, 64px);
+    line-height: 1.15;
   }
 }

@@ -4,6 +4,7 @@ import {
   FaLinkedinIn,
   FaXTwitter,
 } from "react-icons/fa6";
+import ResumeMenu from "./ResumeMenu";
 import "./styles/SocialIcons.css";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
@@ -85,18 +86,23 @@ const SocialIcons = () => {
     { scope: rootRef }
   );
 
+  // Each icon leans toward the pointer when it comes close. One loop per icon,
+  // all stopped (and their listeners removed) when the component unmounts.
   useEffect(() => {
-    const social = document.getElementById("social") as HTMLElement;
+    const social = rootRef.current?.querySelector<HTMLElement>("#social");
+    if (!social) return;
+    const cleanups: (() => void)[] = [];
 
-    social.querySelectorAll("span").forEach((item) => {
-      const elem = item as HTMLElement;
-      const link = elem.querySelector("a") as HTMLElement;
+    social.querySelectorAll<HTMLElement>(":scope > span").forEach((item) => {
+      const link = item.querySelector<HTMLElement>(":scope > a, .resume-trigger");
+      if (!link) return;
 
-      const rect = elem.getBoundingClientRect();
+      const rect = item.getBoundingClientRect();
       let mouseX = rect.width / 2;
       let mouseY = rect.height / 2;
       let currentX = 0;
       let currentY = 0;
+      let raf = 0;
 
       const updatePosition = () => {
         currentX += (mouseX - currentX) * 0.1;
@@ -105,7 +111,7 @@ const SocialIcons = () => {
         link.style.setProperty("--siLeft", `${currentX}px`);
         link.style.setProperty("--siTop", `${currentY}px`);
 
-        requestAnimationFrame(updatePosition);
+        raf = requestAnimationFrame(updatePosition);
       };
 
       const onMouseMove = (e: MouseEvent) => {
@@ -122,18 +128,23 @@ const SocialIcons = () => {
       };
 
       document.addEventListener("mousemove", onMouseMove);
-
       updatePosition();
 
-      return () => {
-        elem.removeEventListener("mousemove", onMouseMove);
-      };
+      cleanups.push(() => {
+        cancelAnimationFrame(raf);
+        document.removeEventListener("mousemove", onMouseMove);
+      });
     });
+
+    return () => cleanups.forEach((cleanup) => cleanup());
   }, []);
 
   return (
     <div className="icons-section" ref={rootRef}>
       <div className="social-icons" data-cursor="icons" id="social">
+        <span className="social-resume">
+          <ResumeMenu />
+        </span>
         <span>
           <a href="https://github.com/thearpankumar" target="_blank" rel="noreferrer">
             <FaGithub />

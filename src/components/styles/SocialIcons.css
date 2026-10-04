@@ -17,21 +17,17 @@
   z-index: 999;
   padding: 10px;
 }
-.social-icons:hover {
-  transition: 0.3s;
-  color: var(--backgroundColor);
-}
-.social-icons a:hover {
-  color: var(--backgroundColor);
-  /* transform: scale(1.2); */
-}
-.social-icons span {
+/* direct children only: the resume flyout (ResumeMenu) has spans of its own */
+.social-icons > span {
   width: 50px;
   height: 50px;
   position: relative;
   display: flex;
 }
-.social-icons a {
+/* the links, and the resume icon's button (ResumeMenu), placed alike: centred
+   in their box, leaning toward the pointer (--siLeft / --siTop) */
+.social-icons a,
+.social-icons .resume-trigger {
   --siLeft: 50%;
   --siTop: 50%;
   position: absolute;
@@ -40,8 +36,36 @@
   transform: translate(-50%, -50%);
   display: flex;
   font-size: 23px;
+  color: #eae5ec;
   will-change: left, top;
-  transition: transform 0.3s ease-out;
+  transition:
+    transform 0.3s ease-out,
+    color 0.25s ease,
+    opacity 0.25s ease,
+    filter 0.25s ease;
+}
+/* Hovering the column: the icon under the pointer lights up and lifts, the
+   others recede a little — dimmed and softly blurred, never gone. */
+.social-icons:hover > span > a,
+.social-icons:hover .resume-trigger {
+  opacity: 0.4;
+  filter: blur(1px);
+}
+.social-icons > span:hover > a,
+.social-icons > span:hover .resume-trigger,
+.social-icons .resume-menu.open .resume-trigger,
+.social-icons a:focus-visible,
+.social-icons .resume-trigger:focus-visible {
+  opacity: 1;
+  filter: none;
+  color: var(--accentColor);
+  transform: translate(-50%, -50%) scale(1.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .social-icons a,
+  .social-icons .resume-trigger {
+    transition: none;
+  }
 }
 .check-line {
   position: fixed;
@@ -57,7 +81,8 @@
     display: flex;
     gap: 20px;
   }
-  .social-icons a {
+  .social-icons a,
+  .social-icons .resume-trigger {
     font-size: 28px;
   }
 }

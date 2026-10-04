@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.45" r="0.8">
+      <stop offset="0" stop-color="#004a2a" />
+      <stop offset="0.55" stop-color="#061f1a" />
+      <stop offset="1" stop-color="#050308" />
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8ce4be" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#00c26e" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg)" />
+  <circle cx="128" cy="128" r="96" fill="url(#glow)" />
+  <path d="M128 46 L190 70 V124 C190 162 164 192 128 210 C92 192 66 162 66 124 V70 Z" fill="#00c26e" fill-opacity="0.25" stroke="#8ce4be" stroke-width="5" stroke-linejoin="round" />
+  <g fill="#8ce4be">
+    <circle cx="104" cy="104" r="5" /><circle cx="128" cy="104" r="5" /><circle cx="152" cy="104" r="5" />
+    <circle cx="104" cy="128" r="5" /><circle cx="128" cy="128" r="8" /><circle cx="152" cy="128" r="5" />
+    <circle cx="104" cy="152" r="5" /><circle cx="128" cy="152" r="5" /><circle cx="152" cy="152" r="5" />
+  </g>
+  <path d="M104 104 L152 152 M104 152 L152 104 M128 104 V152 M104 128 H152" stroke="#8ce4be" stroke-width="2" stroke-opacity="0.5" />
+  <g fill="#ffffff" fill-opacity="0.75">
+    <circle cx="32" cy="31" r="1.6" />
+    <circle cx="89" cy="28" r="1.6" />
+    <circle cx="61" cy="41" r="1" />
+    <circle cx="196" cy="35" r="1.6" />
+    <circle cx="200" cy="57" r="1" />
+    <circle cx="229" cy="204" r="1" />
+  </g>
+</svg>
