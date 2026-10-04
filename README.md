@@ -26,7 +26,23 @@ A scroll-driven 3D portfolio: a character that follows you down the page, a star
 ---
 ## Preview - **[thearpanhq.in](https://thearpanhq.in)**
 
-![Preview](docs/preview.gif)
+### Preloader Section
+![Preview](docs/PreLoaderSection.gif)
+
+### Intro Section
+![Preview](docs/IntroSection.gif)
+
+### Career Section
+![Preview](docs/CareerSection.gif)
+
+### Project Section
+![Preview](docs/ProjectSection.gif)
+
+### Tech Stack Section
+![Preview](docs/TechStackSection.gif)
+
+### Contact Section
+![Preview](docs/ContactSection.gif)
 
 ## Highlights
 
