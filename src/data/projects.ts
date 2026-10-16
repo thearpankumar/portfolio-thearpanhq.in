@@ -17,6 +17,7 @@ import nginxMlkemImg from "../assets/projects/nginx-mlkem.svg";
 import plantdocImg from "../assets/projects/plantdoc.svg";
 import qkdMailImg from "../assets/projects/qkd-mail.svg";
 import sentrixImg from "../assets/projects/sentrix.svg";
+import talentraImg from "../assets/projects/talentra.svg";
 import tridantImg from "../assets/projects/tridant.svg";
 
 export type Project = {
@@ -38,6 +39,15 @@ const GITHUB = "https://github.com/thearpankumar";
  * Keep titles to ~18 characters and descriptions to ~70 so a card's text fits its slab.
  */
 export const projects: readonly Project[] = [
+  {
+    title: "Talentra DB",
+    description:
+      "Highly available CockroachDB cluster with HAProxy and auto-TLS.",
+    year: "2026",
+    tags: ["CockroachDB", "HAProxy", "Caddy"],
+    image: talentraImg,
+    url: `${GITHUB}/Talentra-Hackathon`,
+  },
   {
     title: "Axionyx",
     description:
