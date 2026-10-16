@@ -49,6 +49,40 @@ export const projects: readonly Project[] = [
     url: `${GITHUB}/Talentra-Hackathon`,
   },
   {
+    title: "EncryptiV",
+    description: "Cloud-native file encryption as microservices on Kubernetes.",
+    year: "2024",
+    tags: ["Kubernetes", "Flask", "RabbitMQ"],
+    image: encryptivImg,
+    url: `${GITHUB}/Micro-services-Encrypt5`,
+  },
+  {
+    title: "Encrypt5 Protocols",
+    description:
+      "Quantum-resistant toolkit: GPU AES, Kyber/Dilithium, Double Ratchet.",
+    year: "2024",
+    tags: ["CUDA", "Rust", "PQC"],
+    image: encrypt5ProtocolsImg,
+    url: `${GITHUB}/Encrypt5_SecurityProtocols`,
+  },
+  {
+    title: "Sentrix",
+    description:
+      "AI-native orchestrator for an ecosystem of 1500+ security tools.",
+    year: "2025",
+    tags: ["AI Agents", "Security", "1500+ Tools"],
+    image: sentrixImg,
+  },
+  {
+    title: "Attendix",
+    description:
+      "Geotagged attendance with WebAuthn biometrics and anti-spoof checks.",
+    year: "2026",
+    tags: ["Rust", "WebAuthn", "MediaPipe"],
+    image: attendixImg,
+    url: `${GITHUB}/Attendix-tgl`,
+  },
+  {
     title: "Axionyx",
     description:
       "AI-assisted control and monitoring of modular biomedical lab devices.",
@@ -85,15 +119,6 @@ export const projects: readonly Project[] = [
     url: `${GITHUB}/MailClient_with_QKD`,
   },
   {
-    title: "Encrypt5 Protocols",
-    description:
-      "Quantum-resistant toolkit: GPU AES, Kyber/Dilithium, Double Ratchet.",
-    year: "2024",
-    tags: ["CUDA", "Rust", "PQC"],
-    image: encrypt5ProtocolsImg,
-    url: `${GITHUB}/Encrypt5_SecurityProtocols`,
-  },
-  {
     title: "BlackIceOS",
     description:
       "Agentic AI OS that runs the desktop by voice or text for security work.",
@@ -110,14 +135,6 @@ export const projects: readonly Project[] = [
     tags: ["Next.js", "WebRTC", "FastAPI"],
     image: instructifyImg,
     url: `${GITHUB}/Instructify`,
-  },
-  {
-    title: "EncryptiV",
-    description: "Cloud-native file encryption as microservices on Kubernetes.",
-    year: "2024",
-    tags: ["Kubernetes", "Flask", "RabbitMQ"],
-    image: encryptivImg,
-    url: `${GITHUB}/Micro-services-Encrypt5`,
   },
   {
     title: "CCU Membrane ML",
@@ -208,22 +225,5 @@ export const projects: readonly Project[] = [
     tags: ["Java", "Kestra", "DocumentDB"],
     image: kestraDocumentdbImg,
     url: "https://github.com/kestra-io/plugin-documentdb",
-  },
-  {
-    title: "Sentrix",
-    description:
-      "AI-native orchestrator for an ecosystem of 1500+ security tools.",
-    year: "2025",
-    tags: ["AI Agents", "Security", "1500+ Tools"],
-    image: sentrixImg,
-  },
-  {
-    title: "Attendix",
-    description:
-      "Geotagged attendance with WebAuthn biometrics and anti-spoof checks.",
-    year: "2026",
-    tags: ["Rust", "WebAuthn", "MediaPipe"],
-    image: attendixImg,
-    url: `${GITHUB}/Attendix-tgl`,
   },
 ];
